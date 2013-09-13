@@ -1,0 +1,25 @@
+
+general process:
+
+x read command line arguments
+x validate command line arguments
+
+  build list of step implementations
+
+  build list of feature files
+  build list of substeps files
+
+  convert substeps file list into substeps domain model (map of line to function)
+  convert feature file list into feature model
+
+  build feature runner
+
+  handle output
+
+
+additional stuff
+
+tags
+background
+before/after processors
+zombiejs steps

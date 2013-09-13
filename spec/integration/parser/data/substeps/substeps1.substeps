@@ -1,0 +1,9 @@
+Define: The 1st substep
+    Given a step
+    When a step
+    Then a step
+
+Define: The 2nd substep
+    Given a step
+    When a step
+    Then a step

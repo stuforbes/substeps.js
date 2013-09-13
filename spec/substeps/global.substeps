@@ -1,0 +1,26 @@
+
+Define: Given I am on the home page
+	NavigateTo /
+	
+Define: Then I will see the warning '<warning>'
+	FindByXpath //div[contains(@class, 'alert') and not(contains(@class, 'alert-info'))]
+	AssertCurrentElement text contains "<warning>"
+	
+Define: Then I will see the message '<message>'
+	FindByXpath //div[contains(@class, 'alert-info')]
+	AssertCurrentElement text contains "<message>"
+	
+Define: When I enter text '<text>' to the current element
+	ClearAndSendKeys "<text>"
+	SendEnter
+	
+Define: When I clear the text of the current element
+	ClearAndSendKeys " "
+	SendEnter
+	
+Define: Enter text '<text>' to field with id '<id>'
+	FindById <id>
+	ClearAndSendKeys "<text>"
+	
+Define: When I confirm Yes in the modal
+	ClickInModal "Yes"

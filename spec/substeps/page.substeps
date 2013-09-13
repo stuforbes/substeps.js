@@ -1,0 +1,107 @@
+Define: Given there is a page with the name '<page-name>' and url '<page-url>' at position '<expected-position>' under '<parent-page>'
+	When I add a new page with the name '<page-name>' and url '<page-url>'
+	Then the page at position <expected-position> under '<parent-page>' will be '<page-name>'
+	
+Define: Given the page '<parent-page-name>' has a child named '<child-page-name>' with the url '<child-page-url>'
+	When I navigate to the page 'Home/<parent-page-name>'
+	When I add a new page with the name '<child-page-name>' and url '<child-page-url>'
+	When I indent the page '<child-page-name>'
+	Then the page '<parent-page-name>' has a child '<child-page-name>'
+	
+	
+Define: When I add a new page with the name '<page-name>' and url '<page-url>'
+	ClickById add-new-page
+	AnimationWait
+	FindById pagetitle
+	ClearAndSendKeys "<page-name>" to id pagetitle
+	FindById url
+	ClearAndSendKeys "<page-url>" to id url
+	ClickButton Save
+	
+Define: When I navigate to the home page
+	FindPageItem "Home"
+	ClickCurrentPageItem
+	
+Define: When I navigate to the page '<page-hierarchy>'
+	FindPageItem "<page-hierarchy>"
+	ClickCurrentPageItem
+	
+Define: When I locate the top level page '<page-name>'
+	FindPageItem "Home/<page-name>"
+	
+Define: When I indent the page '<page-name>'
+	When I locate the top level page '<page-name>'
+	RightClickCurrentPageItem
+	FindById indent-page
+	Click
+	
+Define: When I outdent the page '<page-name>'
+	When I locate the top level page '<page-name>'
+	RightClickCurrent
+	FindById outdent-page
+	Click
+	
+Define: When I move the page '<page-name>' to position <position>
+	When I locate the top level page '<page-name>'
+	## TBD
+	
+Define: When I edit the page name '<page-name>'
+	When I locate the top level page '<page-name>'
+	When I select the page name of the current page
+	DoubleClick
+	Find editable page name field in the page hierarchy
+	
+Define: When I edit the page url for the page '<page-name>'
+	When I locate the top level page '<page-name>'
+	MoveMouseOverCurrent
+	When I select the page url of the current page
+	DoubleClick
+	Find editable page url field in the page hierarchy
+	
+Define: When I delete the page '<page-name>'
+	When I locate the top level page '<page-name>'
+	RightClickCurrent
+	ClickById delete-page
+	When I confirm Yes in the modal
+	
+Define: When I select the page name of the current page
+	FindChild ByClass="page-name-label"
+	
+Define: When I select the page url of the current page
+	FindChild ByClass="page-url-label"
+	
+Define: Then the page at position <expected-position> under '<parent-page-name>' will be '<page-name>'
+	AssertPage at position <expected-position> under '<parent-page-name>' is '<page-name>'
+	
+Define: Then the current page will be '<page-name>' at '<page-url>'
+	FindByTagAndAttribute tag=a attributeName=class attributeValue=selected
+	AssertChildElementsContainText xpath="/span" text="<page-name>"
+	MoveMouseOverCurrent
+	AssertChildElementsContainTextFragment xpath=".//div[contains(@class,'page-url-label')]" text="<page-url>"
+	
+Define: Then the page '<parent-page-name>' has a child '<child-page-name>'
+	AssertParent '<parent-page-name>' has child '<child-page-name>'
+	
+Define: Then I will see '<page-name>' with the url '<page-url>' at position <expected-position> in the hierarchy
+	FindPage at position 2
+	MoveMouseOverCurrent
+	AssertCurrentPage has name '<page-name>' and url '<page-url>'
+	
+Define: Then I will not see '<page-name>' in the page hierarachy
+	AssertElementDoesNotExist xpath="//ul[@id='page-hierarchy']//span[text()='<document-name>']"
+	
+Define: Then I cannot edit the url for the page '<page-name>'
+	When I locate the top level page '<page-name>'
+	MoveMouseOverCurrent
+	When I select the page url of the current page
+	DoubleClick
+	AssertElementDoesNotExist xpath="//ul[@id='page-hierarchy']/li/a/span/input[contains(@class, 'edit-page-url')]"
+	
+Define: FindPage at position <position>
+	FindPageAtPosition <position>
+	
+Define: Find editable page name field in the page hierarchy
+	FindByXpath //ul[@id='page-hierarchy']/li/a/span/input[contains(@class, 'edit-page-name')]
+
+Define: Find editable page url field in the page hierarchy
+	FindByXpath //ul[@id='page-hierarchy']/li/a/div[@class='page-url-bar']/input[contains(@class, 'edit-page-url')]

@@ -1,0 +1,109 @@
+Define: Given I am authoring the new document '<name>' with summary '<summary>'
+	Given I am on the home page
+	Given there are no documents in the system
+	Given there is a document with the name '<name>' and summary '<summary>'
+	Given I am authoring '<name>'
+	
+## Create document substeps
+Define: Given there is a document with the name '<name>' and summary '<summary>'
+	When I choose to add a new document
+	When I set the new document name as '<name>'
+	When I set the new document summary as '<summary>'	
+	When I save the new document
+	Then I will see '<name>' with the summary '<summary>' in the document list
+	
+Define: When I choose to add a new document
+	FindById newDocumentName
+	Click
+	
+Define: When I set the new document name as '<name>'
+	Enter text '<name>' to field with id 'newDocumentName'
+	
+Define: When I set the new document url as '<url>'
+	Enter text '<url>' to field with id 'newDocumentUrl'
+	
+Define: When I clear the new document url
+	FindById newDocumentUrl
+	# Have to send the <space> key to trigger the key up event
+	ClearAndSendKeys " "
+	
+	
+Define: When I set the new document summary as '<summary>'
+	Enter text '<summary>' to field with id 'newDocumentSummary'
+	
+Define: When I save the new document
+	ClickButton Save
+	
+
+## Edit document substeps
+Define: When I edit the document name '<document-name>'
+	Find document name '<document-name>' in the document list
+	DoubleClick
+	Find editable document name '<document-name>' in the document list
+	
+Define: When I edit the document url to '<document-url>' for document '<document-name>'
+	Find document url '<document-url>' for document '<document-name>' in the document list
+	DoubleClick
+	Find editable document url '<document-url>' in the document list
+	
+Define: When I edit the document summary to '<document-summary>' for document '<document-name>'
+	Find document summary '<document-summary>' for document '<document-name>' in the document list
+	DoubleClick
+	Find editable document summary '<document-summary>' in the document list
+		
+Define: Given I am authoring '<document-name>'
+	Find document '<document-name>' in the document list
+	MoveMouseOverCurrent 
+	ClickById author-document
+
+## Delete document substeps
+Define: When I delete the document '<document-name>'
+	Find document '<document-name>' in the document list
+	MoveMouseOverCurrent 
+	ClickById delete-document
+	When I confirm Yes in the modal
+	
+
+## View document substeps
+Define: Then I will see '<document-name>' with the url '<document-url>' and summary '<document-summary>' in the document list
+	Find document '<document-name>' in the document list
+	MoveMouseOverCurrent
+	AssertDocumentName text="<document-name>"
+	AssertDocumentUrl text="<document-url>"
+	AssertDocumentSummary text="<document-summary>"
+	
+Define: Then I will see '<document-name>' with the summary '<document-summary>' in the document list
+	Find document '<document-name>' in the document list
+	AssertDocumentName text="<document-name>"
+	AssertDocumentSummary text="<document-summary>"
+	
+Define: Then I will see '<document-name>' with no summary
+	Find document '<document-name>' in the document list
+	AssertDocumentName text="<document-name>"
+	AssertDocumentSummary is blank
+	
+Define: Find document '<document-name>' in the document list
+	FindDocumentItem "<document-name>"
+	
+Define: Find document name '<document-name>' in the document list
+	FindDocumentNameElement "<document-name>"
+	
+Define: Find document url '<document-url>' for document '<document-name>' in the document list
+	FindDocumentItem "<document-name>"
+	MoveMouseOverCurrent
+	FindDocumentUrlElement for Document "<document-name>" "<document-url>"
+	
+Define: Find document summary '<document-summary>' for document '<document-name>' in the document list
+	FindDocumentSummaryElement for Document "<document-name>" "<document-summary>"
+	
+Define: Find editable document name '<document-name>' in the document list
+	FindByXpath //div[@id='document-list']//div[@class='span5 name']/input[contains(@class, 'edit-document-name')]
+	
+Define: Find editable document url '<document-url>' in the document list
+	FindByXpath //div[@id='document-list']//span[contains(@class, 'document-url')]/div/input[contains(@class, 'edit-document-url')]
+	
+Define: Find editable document summary '<document-summary>' in the document list
+	FindByXpath //div[@id='document-list']//div[@class='span5 summary']/input[contains(@class, 'edit-document-summary')]
+	
+Define: Then I will not see '<document-name>' in the document list
+	AssertElementDoesNotExist xpath="//div[@id='document-list']//div[@class='span5 name']/h4[text()='<document-name>']"
