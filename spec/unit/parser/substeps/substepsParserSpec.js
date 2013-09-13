@@ -12,7 +12,7 @@ describe('substepsParser', function(){
     fileToDefinitionList = jasmine.createSpyObj('fileToDefinitionList', ['apply']);
     substepExecutionBinder = jasmine.createSpyObj('substepExecutionBinder', ['create']);
 
-    substepsParser = require('../../../lib/parser/substepsParser')(async, substepExecutionBinder, fileToDefinitionList);
+    substepsParser = require('../../../../lib/parser/substeps/substepsParser')(async, substepExecutionBinder, fileToDefinitionList);
 
     async.list.andReturn(async);
     async.readFile.andReturn(async);

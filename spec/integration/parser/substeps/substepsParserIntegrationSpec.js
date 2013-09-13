@@ -5,7 +5,7 @@ describe('substepsParser integration', function(){
   var substepsParser;
 
   beforeEach(function(){
-    substepsParser = require('../../../lib/parser/substepsParserFactory')();
+    substepsParser = require('../../../../lib/parser/substeps/substepsParserFactory')();
   });
 
   beforeEach(function(){
@@ -31,8 +31,8 @@ describe('substepsParser integration', function(){
     var onCompleteCalled = false;
 
     var files = [
-      {path: 'spec/integration/parser/data/substeps/substeps1.substeps', name: 'substeps1.substeps'},
-      {path: 'spec/integration/parser/data/substeps/substeps2.substeps', name: 'substeps2.substeps'}
+      {path: 'spec/integration/parser/substeps/data/substeps/substeps1.substeps', name: 'substeps1.substeps'},
+      {path: 'spec/integration/parser/substeps/data/substeps/substeps2.substeps', name: 'substeps2.substeps'}
     ]
 
     substepsParser.parse(files, function(error, results){

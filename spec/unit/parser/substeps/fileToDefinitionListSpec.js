@@ -10,7 +10,7 @@ describe('fileToDefinitionList', function(){
     stringTools = jasmine.createSpyObj('stringTools', ['stripCommentsFrom']);
     _ = jasmine.createSpyObj('_', ['startsWith']);
 
-    fileToDefinitionList = require('../../../lib/parser/fileToDefinitionList')(stringTools, _);
+    fileToDefinitionList = require('../../../../lib/parser/substeps/fileToDefinitionList')(stringTools, _);
 
     stringTools.stripCommentsFrom.andCallFake(function(line){
       if(line.indexOf('#') > -1) return line.substring(0, line.indexOf('#')).trim();

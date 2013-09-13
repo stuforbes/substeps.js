@@ -5,7 +5,7 @@ describe('substepsExecutionBinder', function(){
   var substepExecutionBinder;
 
   beforeEach(function(){
-    substepExecutionBinder = require('../../../lib/parser/substepsExecutionBinder')().create();
+    substepExecutionBinder = require('../../../../lib/parser/substeps/substepsExecutionBinder')().create();
   });
 
   it('should attach executors to each step in each definition', function(){
