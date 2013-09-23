@@ -18,7 +18,7 @@ module.exports = function (grunt) {
   grunt.initConfig({
     config : {
       app: 'app',
-      dist: 'dist'
+      build: 'build'
     },
     clean: {
       dist: {
@@ -27,30 +27,30 @@ module.exports = function (grunt) {
             dot: true,
             src: [
               '.tmp',
-              '<%= config.dist %>/*',
-              '!<%= config.dist %>/.git*'
+              '<%= config.build %>/*'
             ]
           }
         ]
       }
     },
     jasmine_node: {
-      coverage: {
-      },
+      //coverage: {
+      //},
       specNameMatcher: "Spec", // load only specs containing specNameMatcher
       projectRoot: ".",
       requirejs: false,
       forceExit: true,
       jUnit: {
-        report: false,
-        savePath : "./reports/jasmine/",
+        report: true,
+        savePath : "./build/reports/jasmine/",
         useDotNotation: true,
         consolidate: true
       }
     }
   });
 
-  grunt.loadNpmTasks('grunt-jasmine-node-coverage');
+  grunt.loadNpmTasks('grunt-jasmine-node');
+  //grunt.loadNpmTasks('grunt-jasmine-node-coverage');
 
   grunt.registerTask('test', [
     'jasmine_node',
