@@ -1,0 +1,213 @@
+'use strict';
+
+describe('fileToFeature', function(){
+
+  var directives;
+  var stringTools;
+  var _;
+
+  var fileToFeature;
+
+  var waitForCallback = function(callback){
+    var isSatisfied = false;
+
+    return function(){
+
+
+      callback(function(){
+        isSatisfied = true;
+      })
+
+      waitsFor(function(){
+        return isSatisfied;
+      })
+    }
+  };
+
+
+  beforeEach(function(){
+    directives = jasmine.createSpyObj('directives', ['directives', 'directiveFeature']);
+    stringTools = jasmine.createSpyObj('stringTools', ['stripCommentsFrom']);
+    _ = jasmine.createSpyObj('_', ['find', 'filter', 'map']);
+    _.str = jasmine.createSpyObj('_str', ['startsWith']);
+
+    stringTools.stripCommentsFrom.andCallFake(function(text){ return text; });
+    directives.directiveFeature.andReturn({text: 'Feature:'});
+
+    _.str.startsWith.andCallFake(function(text, start){
+      return text.substring(0, start.length) === start;
+    });
+
+    fileToFeature = require('../../../../lib/parser/feature/fileToFeature')(directives, stringTools, _);
+  });
+
+  describe('feature processing', function(){
+    it('should process a feature if there is no previous content', waitForCallback(function(isSatisfied){
+
+      _.find.andCallFake(function(directives, filter){
+        return {text: 'Feature:'};
+      });
+
+      fileToFeature.apply('Feature: Some feature', function(error, result){
+        expect(error).toBeUndefined();
+        expect(result.feature).toBe('Some feature');
+
+        isSatisfied();
+      });
+    }));
+
+    it('should not process a feature if there is already a feature defined', waitForCallback(function(isSatisfied){
+
+      _.find.andCallFake(function(directives, filter){
+        return {text: 'Feature:'};
+      });
+
+      var feature = fileToFeature.apply('Feature: Some feature\nFeature: Some other feature', function(error, result){
+        expect(result).toBeUndefined();
+        expect(error).toBe('Only one feature is allowed per feature file');
+
+        isSatisfied();
+      });
+    }));
+  });
+
+  describe('background processing', function(){
+    it('should process a background if the previous node was a feature', waitForCallback(function(isSatisfied){
+
+      var backgroundIsApplicable = jasmine.createSpy('background is applicable');
+      backgroundIsApplicable.andCallFake(function(node){
+        return previous.
+      });
+
+      _.find.andCallFake(function(directives, filter){
+        if(filter({text: 'Feature:'})){
+          return {text: 'Feature:'}
+        } else if(filter({text: 'Background:'})){
+          return {text: 'Background:'};
+        } else {
+          console.log('unknown');
+        }
+        return {};
+      });
+
+      var feature = fileToFeature.apply('Feature: A feature\nBackground: Some background', function(error, result){
+        expect(error).toBeUndefined();
+        expect(result).background.toBeDefined();
+
+        isSatisfied();
+      });
+    }));
+
+    it('should not process a background if no feature is defined', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should not process a background if the previous node was not a feature', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should add steps to a background correctly', function(){
+      expect('pending').toBe('completed');
+    });
+  });
+
+  xdescribe('scenario processing', function(){
+    it('should not process a scenario if there is no feature', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should process a scenario if the previous node was a feature', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should process a scenario if the previous node was a background', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should process a scenario if the previous node was a scenario', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should process a scenario if the previous node was a scenario outline', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should process a scenario if the previous node was an example', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should add steps to a scenario correctly', function(){
+      expect('pending').toBe('completed');
+    });
+  });
+
+  xdescribe('scenario outline processing', function(){
+    it('should not process a scenario outline if there is no feature', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should process a scenario outline if the previous node was a feature', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should process a scenario outline if the previous node was a background', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should process a scenario outline if the previous node was a scenario', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should process a scenario outline if the previous node was a scenario outline', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should process a scenario outline if the previous node was an example', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should add steps to a scenario outline correctly', function(){
+      expect('pending').toBe('completed');
+    });
+  });
+
+  xdescribe('example processing', function(){
+    it('should not process an examples directive if the previous node is not a scenario outline', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should process an example directive if the previous node is a scenario outline', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should process example columns if the parent is an examples directive', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should process an example row if the example already has example columns', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should process multiple example rows correctly', function(){
+      expect('pending').toBe('completed');
+    });
+  });
+
+  xdescribe('steps processing', function(){
+    it('should not allow steps to be added if no feature is defined', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should not allow steps to be added if the previous node is a feature', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should not allow steps to be added if the previus node is an example', function(){
+      expect('pending').toBe('completed');
+    });
+
+    it('should process multiple steps correctly', function(){
+      expect('pending').toBe('completed');
+    });
+  });
+});

@@ -12,6 +12,7 @@ logs
 results
 node_modules/
 coverage/
+build/
 .idea/
 
 npm-debug.log

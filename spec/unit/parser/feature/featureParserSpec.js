@@ -7,7 +7,7 @@ describe('featureParser', function(){
   var featureParser;
 
   beforeEach(function(){
-    async = jasmine.createSpyObj('asyncjs', ['list', 'readFile', 'map', 'reduce', 'each', 'end']);
+    async = jasmine.createSpyObj('asyncjs', ['list', 'readFile', 'map', 'toArray']);
     fileToFeature = jasmine.createSpyObj('fileToFeatureList', ['apply']);
 
     featureParser = require('../../../../lib/parser/feature/featureParser')(async, fileToFeature);
@@ -15,9 +15,7 @@ describe('featureParser', function(){
     async.list.andReturn(async);
     async.readFile.andReturn(async);
     async.map.andReturn(async);
-    async.reduce.andReturn(async);
-//    async.each.andReturn(async);
-    async.end.andReturn(async);
+    async.toArray.andReturn(async);
   });
 
   it('should use async to read all files and convert to definitions', function(){
@@ -30,9 +28,9 @@ describe('featureParser', function(){
     expect(async.list).toHaveBeenCalledWith(files);
     expect(async.readFile).toHaveBeenCalledWith('utf8');
     expect(async.map).toHaveBeenCalled();
-    expect(async.reduce).toHaveBeenCalled();
+//    expect(async.reduce).toHaveBeenCalled();
 //    expect(async.each).toHaveBeenCalled();
-    expect(async.end).toHaveBeenCalledWith(onComplete);
+    expect(async.toArray).toHaveBeenCalledWith(onComplete);
   });
 
   it('should map file contents to a feature', function(){
@@ -53,7 +51,6 @@ describe('featureParser', function(){
 
     featureParser.parse([file], jasmine.createSpy());
 
-    expect(fileToFeature.apply).toHaveBeenCalledWith('file data');
-    expect(next).toHaveBeenCalledWith(null, feature);
+    expect(fileToFeature.apply).toHaveBeenCalledWith('file data', jasmine.any(Function));
   });
 });
