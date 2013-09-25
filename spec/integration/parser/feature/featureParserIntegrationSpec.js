@@ -13,7 +13,7 @@ describe('featureParser integration', function () {
 
   });
 
-  it('should convert all files to a list of definitions', function () {
+  it('should convert all files to a list of features', function () {
 
     var onCompleteCalled = false;
 
@@ -25,8 +25,8 @@ describe('featureParser integration', function () {
     var feature1 = createFeatureModel('1st');
     var feature2 = createFeatureModel('2nd');
 
-    featureParser.parse(files, function (error, results) {
-      expect(error).toBeNull();
+    featureParser.parse(files, [], function (error, results) {
+      expect(error).toBeUndefined();
       expect(results).toBeDefined();
 
       expect(results.length).toBe(2);

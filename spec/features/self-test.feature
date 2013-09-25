@@ -1,4 +1,4 @@
-Tags: @non-visual
+# Tags: @non-visual
 
 Feature: A feature to self test the webdriver substeps implementations
 

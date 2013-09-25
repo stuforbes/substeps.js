@@ -1,4 +1,4 @@
-Tags: @visual
+# Tags: @visual
 
 Feature: A set of features that are only applicable for visual webdriver implementations
 
