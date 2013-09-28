@@ -113,10 +113,6 @@ describe('featureParser', function(){
     var substepDefinitionList = [{text: 'definition1'}, {text: 'definition2'}];
     var featureList = [{text: 'feature1'}, {text: 'feature2'}];
 
-    next.andCallFake(function(error, result){
-      console.log('next called')
-    });
-
     featureExecutionBinder.create.andReturn(executionBinderImpl);
 
     async.each.andCallFake(function(callback){
@@ -127,5 +123,6 @@ describe('featureParser', function(){
     featureParser.parse({data: 'file data'}, substepDefinitionList, jasmine.createSpy());
 
     expect(executionBinderImpl.bindExecutionTo).toHaveBeenCalledWith(featureList, substepDefinitionList);
+    expect(next).toHaveBeenCalledWith(null, featureList);
   });
 });
