@@ -3,8 +3,10 @@
 describe('substepsExecutionBinder', function(){
 
   var substepExecutionBinder;
+  var output;
 
   beforeEach(function(){
+    output = jasmine.createSpyObj('consoleoutput', ['descend', 'ascend', 'printSuccess', 'printMissingDefinition', 'printFailure']);
     substepExecutionBinder = require('../../../../lib/parser/substeps/substepsExecutionBinder')().create();
   });
 

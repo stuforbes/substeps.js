@@ -1,5 +1,4 @@
-Feature: A user can manage their pages within a document, choosing to create, edit and delete them,
-	in addition to manipulating the page hierarchy 
+Feature: A user can manage their pages within a document, choosing to create, edit and delete them, in addition to manipulating the page hierarchy
 
 Background: Delete all existing documents
 	Given I am authoring the new document 'Document' with summary 'A Summary'
