@@ -3,11 +3,13 @@
 describe('featureExecutionBinder', function(){
 
   var _;
+  var output;
   var featureExecutionBinder;
 
   beforeEach(function(){
     _ = jasmine.createSpyObj('_', ['find']);
-    featureExecutionBinder = require('../../../../lib/parser/feature/featureExecutionBinder')(_).create();
+    output = jasmine.createSpyObj('consoleoutput', ['descend', 'ascend', 'printSuccess', 'printMissingDefinition', 'printFailure']);
+    featureExecutionBinder = require('../../../../lib/parser/feature/featureExecutionBinder')(output, _).create();
 
     _.find.andCallFake(function(list, fn){
       for(var i in list){
@@ -20,8 +22,8 @@ describe('featureExecutionBinder', function(){
 
   it('should attach executors to each background step in each feature', function(){
 
-    var feature1 = { background: { steps: [{step: 'Given a background step'}, {step: 'When a background step'}, {step: 'Then a background step'}] } }
-    var feature2 = { background: { steps: [{step: 'Given a background step'}, {step: 'When a background step'}, {step: 'Then a background step'}] } }
+    var feature1 = { background: { steps: [{text: 'Given a background step'}, {text: 'When a background step'}, {text: 'Then a background step'}] } }
+    var feature2 = { background: { steps: [{text: 'Given a background step'}, {text: 'When a background step'}, {text: 'Then a background step'}] } }
 
     var stepDefinitions = [ //
       {text: 'Given a background step', executor: jasmine.createSpy(), executionCount: 0}, //
@@ -44,8 +46,8 @@ describe('featureExecutionBinder', function(){
 
   it('should attach executors to each scenario step in each feature', function(){
 
-    var feature1 = { scenarios: [{ steps: [{step: 'Given a scenario step'}, {step: 'When a scenario step'}, {step: 'Then a scenario step'}] }] };
-    var feature2 = { scenarios: [{ steps: [{step: 'Given a scenario step'}, {step: 'When a scenario step'}, {step: 'Then a scenario step'}] }] };
+    var feature1 = { scenarios: [{ steps: [{text: 'Given a scenario step'}, {text: 'When a scenario step'}, {text: 'Then a scenario step'}] }] };
+    var feature2 = { scenarios: [{ steps: [{text: 'Given a scenario step'}, {text: 'When a scenario step'}, {text: 'Then a scenario step'}] }] };
 
     var stepDefinitions = [ //
       {text: 'Given a scenario step', executor: jasmine.createSpy(), executionCount: 0}, //

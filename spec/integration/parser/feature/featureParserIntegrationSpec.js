@@ -90,7 +90,7 @@ describe('featureParser integration', function () {
     };
 
     var isScenarioMatch = function (actual, expected) {
-      return (actual.scenario == expected.scenario) && isStepsMatch(actual.steps, expected.steps);
+      return (actual.text == expected.scenario) && isStepsMatch(actual.steps, expected.steps);
     };
 
     var isScenarioOutlineMatch = function (actual, expected) {
@@ -106,7 +106,7 @@ describe('featureParser integration', function () {
     var isStepsMatch = function (actuals, expecteds) {
       if (actuals.length === expecteds.length) {
         for (var i in actuals) {
-          if (actuals[i].step !== expecteds[i]) {
+          if (actuals[i].text !== expecteds[i]) {
             return false;
           }
         }
@@ -171,8 +171,8 @@ describe('featureParser integration', function () {
 
     return {
       isFeature: function (feature) {
-
-        if (this.actual.text === feature.text) {
+        var actual = this.actual;
+        if (this.actual.feature === feature.feature) {
           if (isBackgroundMatch(this.actual.background, feature.background)) {
             if (isScenariosMatch(this.actual.scenarios, feature.scenarios)) {
               return true;

@@ -71,7 +71,7 @@ describe('directives', function(){
     it('should create a valid scenario node', function(){
       var scenario = directives.directiveScenario().create('A scenario');
       expect(scenario.type).toBe('scenario');
-      expect(scenario.node.scenario).toBe('A scenario');
+      expect(scenario.node.text).toBe('A scenario');
       expect(scenario.node.outline).toBe(false);
       expect(scenario.node.steps).toBeDefined();
       expect(scenario.node.steps.length).toBe(0);
@@ -107,7 +107,7 @@ describe('directives', function(){
     it('should create a valid scenario outline node', function(){
       var scenario = directives.directiveScenarioOutline().create('A scenario outline');
       expect(scenario.type).toBe('scenario-outline');
-      expect(scenario.node.scenario).toBe('A scenario outline');
+      expect(scenario.node.text).toBe('A scenario outline');
       expect(scenario.node.outline).toBe(true);
       expect(scenario.node.steps).toBeDefined();
       expect(scenario.node.steps.length).toBe(0);

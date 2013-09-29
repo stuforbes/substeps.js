@@ -253,9 +253,9 @@ describe('fileToFeature', function(){
 
         var steps = scenario.node.steps;
         expect(steps.length).toBe(3);
-        expect(steps[0].step).toBe('Given a step');
-        expect(steps[1].step).toBe('When a step2');
-        expect(steps[2].step).toBe('Then a step3');
+        expect(steps[0].text).toBe('Given a step');
+        expect(steps[1].text).toBe('When a step2');
+        expect(steps[2].text).toBe('Then a step3');
 
         isSatisfied();
       });
@@ -268,7 +268,7 @@ describe('fileToFeature', function(){
       fileToFeature.apply('Feature: A feature\nGiven a step', function(error, result){
         expect(result).toBeUndefined();
         expect(error).toBeDefined();
-        expect(error).toBe('Could not create feature. Tried to add a step to directive (feature) on line 2');
+        expect(error).toBe('Could not create feature. Tried to add a step (Given a step) to directive (feature) on line 2');
 
         isSatisfied();
       });
