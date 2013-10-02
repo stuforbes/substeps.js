@@ -2,10 +2,18 @@
 
 describe('featureParser integration', function () {
 
+  var _;
+  var executionFactory;
+  var output;
+
   var featureParser;
 
   beforeEach(function () {
-    featureParser = require('../../../../lib/parser/feature/featureParserFactory')();
+    _ = require('underscore');
+    _.str = require('underscore.string');
+    output = require('../../../../lib/cli/consoleoutput')();
+    executionFactory = require('../../../../lib/execution/executionFactory')(output, _);
+    featureParser = require('../../../../lib/parser/feature/featureParserFactory')(executionFactory, output, _);
   });
 
   beforeEach(function () {

@@ -2,12 +2,15 @@
 
 describe('substepsExecutionBinder', function(){
 
-  var substepExecutionBinder;
   var output;
+  var executionFactory;
+
+  var substepExecutionBinder;
 
   beforeEach(function(){
-    output = jasmine.createSpyObj('consoleoutput', ['descend', 'ascend', 'printSuccess', 'printMissingDefinition', 'printFailure']);
-    substepExecutionBinder = require('../../../../lib/parser/substeps/substepsExecutionBinder')().create();
+    executionFactory = jasmine.createSpyObj('executionFactory', ['stepContainerExecutor']);
+    output = jasmine.createSpyObj('consoleoutput', ['printMissingDefinition']);
+    substepExecutionBinder = require('../../../../lib/parser/substeps/substepsExecutionBinder')(executionFactory, output).create();
   });
 
   it('should attach executors to each step in each definition', function(){
@@ -25,6 +28,8 @@ describe('substepsExecutionBinder', function(){
     expect(stepDefinition.steps[0].executor).toBeDefined();
     expect(stepDefinition.steps[1].executor).toBeDefined();
     expect(stepDefinition.steps[2].executor).toBeDefined();
+
+    expect(executionFactory.stepContainerExecutor).toHaveBeenCalledWith(stepDefinition)
   });
 
   it('should attach executors to each step in each definition, even when the source definitions are defined later', function(){
@@ -42,20 +47,7 @@ describe('substepsExecutionBinder', function(){
     expect(stepDefinition.steps[0].executor).toBeDefined();
     expect(stepDefinition.steps[1].executor).toBeDefined();
     expect(stepDefinition.steps[2].executor).toBeDefined();
+
+    expect(executionFactory.stepContainerExecutor).toHaveBeenCalledWith(stepDefinition)
   });
-
-  it('should attach executors to the definition itself, that calls each steps executor', function(){
-
-    var firstDefinition = {text: 'Given something', steps: []};
-    var secondDefinition = {text: 'When something', steps: []};
-    var thirdDefinition = {text: 'Then something', steps: []};
-
-    var stepDefinition = {text: 'Step Definition', steps: [
-      {text: 'Given something'}, {text: 'When something'}, {text: 'Then something'}
-    ]};
-
-    substepExecutionBinder.bindExecutionTo([stepDefinition, firstDefinition, secondDefinition, thirdDefinition]);
-
-    expect(stepDefinition.executor).toBeDefined();
-  })
 });
