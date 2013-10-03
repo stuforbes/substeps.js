@@ -8,7 +8,8 @@ describe('fileToDefinitionList', function(){
 
   beforeEach(function(){
     stringTools = jasmine.createSpyObj('stringTools', ['stripCommentsFrom']);
-    _ = jasmine.createSpyObj('_', ['startsWith']);
+    _ = require('underscore');
+    _.str = jasmine.createSpyObj('_str', ['startsWith']);
 
     fileToDefinitionList = require('../../../../lib/parser/substeps/fileToDefinitionList')(stringTools, _);
 
@@ -16,7 +17,7 @@ describe('fileToDefinitionList', function(){
       if(line.indexOf('#') > -1) return line.substring(0, line.indexOf('#')).trim();
       return line;
     });
-    _.startsWith.andCallFake(function(str, startsWith){
+    _.str.startsWith.andCallFake(function(str, startsWith){
       return str.substring(0, startsWith.length) == startsWith;
     })
   });
@@ -104,5 +105,69 @@ describe('fileToDefinitionList', function(){
     expect(definition2.steps[0].text).toBe('Step 1');
     expect(definition2.steps[1].text).toBe('Step 2');
     expect(definition2.steps[2].text).toBe('Step 3');
+  });
+
+  it('should have an empty parameter list for a definition that doesnt contain parameters', function(){
+    var fileContents = 'Define: A parameterless Substep\n\tStep 1\n\tStep 2\n\tStep 3\n';
+
+    var definitions = fileToDefinitionList.apply(fileContents);
+    expect(definitions.length).toBe(1);
+
+    expect(definitions[0].parameters.length).toBe(0);
+  });
+
+  it('should have a single parameter in the parameter list for a definition that contains 1 parameter', function(){
+    var fileContents = 'Define: A <single> parameter Substep\n\tStep 1\n\tStep 2\n\tStep 3\n';
+
+
+
+    var definitions = fileToDefinitionList.apply(fileContents);
+    expect(definitions.length).toBe(1);
+
+    expect(definitions[0].parameters.length).toBe(1);
+    expect(definitions[0].parameters[0]).toBe('single');
+  });
+
+  it('should have multiple parameters in the parameter list for a definition that contains 3 parameter', function(){
+    var fileContents = 'Define: The <first> parameter, the <second> parameter and the <third> parameter in the Substep\n\tStep 1\n\tStep 2\n\tStep 3\n';
+
+    var definitions = fileToDefinitionList.apply(fileContents);
+    expect(definitions.length).toBe(1);
+
+    expect(definitions[0].parameters.length).toBe(3);
+    expect(definitions[0].parameters[0]).toBe('first');
+    expect(definitions[0].parameters[1]).toBe('second');
+    expect(definitions[0].parameters[2]).toBe('third');
+  });
+
+  it('should have an empty parameter list for a step that doesnt contain parameters', function(){
+    var fileContents = 'Define: A Substep\n\tStep 1\n\tStep 2\n\tStep 3\n';
+
+    var definitions = fileToDefinitionList.apply(fileContents);
+    expect(definitions.length).toBe(1);
+
+    expect(definitions[0].steps[0].parameters.length).toBe(0);
+  });
+
+  it('should have a single parameter in the parameter list for a step that contains 1 parameter', function(){
+    var fileContents = 'Define: A Substep\n\tStep with <parameter> 1\n\tStep 2\n\tStep 3\n';
+
+    var definitions = fileToDefinitionList.apply(fileContents);
+    expect(definitions.length).toBe(1);
+
+    expect(definitions[0].steps[0].parameters.length).toBe(1);
+    expect(definitions[0].steps[0].parameters[0]).toBe('parameter');
+  });
+
+  it('should have multiple parameters in the parameter list for a definition that contains 3 parameter', function(){
+    var fileContents = 'Define: A Substep\n\tStep 1\n\tA Step with <first> parameter, a <second> parameter and a <third> parameter 2\n\tStep 3\n';
+
+    var definitions = fileToDefinitionList.apply(fileContents);
+    expect(definitions.length).toBe(1);
+
+    expect(definitions[0].steps[1].parameters.length).toBe(3);
+    expect(definitions[0].steps[1].parameters[0]).toBe('first');
+    expect(definitions[0].steps[1].parameters[1]).toBe('second');
+    expect(definitions[0].steps[1].parameters[2]).toBe('third');
   });
 });
