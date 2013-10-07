@@ -87,7 +87,7 @@ describe('fileToDefinitionList', function(){
 
   it('should return multiple definitions if they are in the content', function(){
     var fileContents = 'Define: The 1st Substep\n\tStep 1\n\tStep 2\n\tStep 3\n' +
-      'Define: The 2nd Substep\n\tStep 1\n\tStep 2\n\tStep 3'
+      'Define: The 2nd Substep\n\tStep 1\n\tStep 2\n\tStep 3';
 
     var definitions = fileToDefinitionList.apply(fileContents);
     expect(definitions.length).toBe(2);
@@ -107,25 +107,25 @@ describe('fileToDefinitionList', function(){
     expect(definition2.steps[2].text).toBe('Step 3');
   });
 
-  it('should have an empty parameter list for a definition that doesnt contain parameters', function(){
+  it('should have an empty parameter list and a pattern that matches the text for a definition that doesnt contain parameters', function(){
     var fileContents = 'Define: A parameterless Substep\n\tStep 1\n\tStep 2\n\tStep 3\n';
 
     var definitions = fileToDefinitionList.apply(fileContents);
     expect(definitions.length).toBe(1);
 
     expect(definitions[0].parameters.length).toBe(0);
+    expect(definitions[0].pattern.test('A parameterless Substep')).toBe(true);
   });
 
   it('should have a single parameter in the parameter list for a definition that contains 1 parameter', function(){
     var fileContents = 'Define: A <single> parameter Substep\n\tStep 1\n\tStep 2\n\tStep 3\n';
-
-
 
     var definitions = fileToDefinitionList.apply(fileContents);
     expect(definitions.length).toBe(1);
 
     expect(definitions[0].parameters.length).toBe(1);
     expect(definitions[0].parameters[0]).toBe('single');
+    expect(definitions[0].pattern.test('A something parameter Substep')).toBe(true);
   });
 
   it('should have multiple parameters in the parameter list for a definition that contains 3 parameter', function(){
@@ -138,6 +138,7 @@ describe('fileToDefinitionList', function(){
     expect(definitions[0].parameters[0]).toBe('first');
     expect(definitions[0].parameters[1]).toBe('second');
     expect(definitions[0].parameters[2]).toBe('third');
+    expect(definitions[0].pattern.test('The good parameter, the bad parameter and the ugly parameter in the Substep')).toBe(true);
   });
 
   it('should have an empty parameter list for a step that doesnt contain parameters', function(){
