@@ -26,11 +26,11 @@ describe('substepsExecutionBinder', function(){
       }
     });
 
-    firstDefinition = {text: 'Given something', pattern: /Given something/g, steps: [], fakeExecutor: jasmine.createSpy('given step executor')};
-    secondDefinition = {text: 'When something', pattern: /When something/g, steps: [], fakeExecutor: jasmine.createSpy('when step executor')};
-    thirdDefinition = {text: 'Then something', pattern: /Then something/g, steps: [], fakeExecutor: jasmine.createSpy('then step executor')};
+    firstDefinition = {text: 'Given something', pattern: 'Given something', steps: [], fakeExecutor: jasmine.createSpy('given step executor')};
+    secondDefinition = {text: 'When something', pattern: 'When something', steps: [], fakeExecutor: jasmine.createSpy('when step executor')};
+    thirdDefinition = {text: 'Then something', pattern: 'Then something', steps: [], fakeExecutor: jasmine.createSpy('then step executor')};
 
-    stepDefinition = {text: 'Step Definition', pattern: /Step Definition/g, steps: [
+    stepDefinition = {text: 'Step Definition', pattern: 'Step Definition', steps: [
       {text: 'Given something'}, {text: 'When something'}, {text: 'Then something'}
     ]};
   });
@@ -58,9 +58,9 @@ describe('substepsExecutionBinder', function(){
   it('should attach executors to each step in each definition, updating parameter values in parameterised substeps', function(){
 
     // redefine variables
-    firstDefinition = {text: 'Given a \'<parameter>\' something', pattern: /Given a ([^"]*) something/g, steps: [], fakeExecutor: jasmine.createSpy('given step executor')};
-    secondDefinition = {text: 'When a \'<parameter>\' something', pattern: /When a ([^"]*) something/g, steps: [], fakeExecutor: jasmine.createSpy('when step executor')};
-    thirdDefinition = {text: 'Then a \'<parameter>\' something', pattern: /Then a ([^"]*) something/g, steps: [], fakeExecutor: jasmine.createSpy('then step executor')};
+    firstDefinition = {text: 'Given a \'<parameter>\' something', pattern: 'Given a ([^"]*) something', steps: [], fakeExecutor: jasmine.createSpy('given step executor')};
+    secondDefinition = {text: 'When a \'<parameter>\' something', pattern: 'When a ([^"]*) something', steps: [], fakeExecutor: jasmine.createSpy('when step executor')};
+    thirdDefinition = {text: 'Then a \'<parameter>\' something', pattern: 'Then a ([^"]*) something', steps: [], fakeExecutor: jasmine.createSpy('then step executor')};
 
     stepDefinition = {text: 'Step Definition', steps: [
       {text: 'Given a \'first\' something'}, {text: 'When a \'second\' something'}, {text: 'Then a \'third\' something'}

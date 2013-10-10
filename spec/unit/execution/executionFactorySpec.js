@@ -8,7 +8,7 @@ describe('executionFactory', function () {
   var executionFactory;
 
   beforeEach(function () {
-    _ = jasmine.createSpyObj('_', ['find']);
+    _ = jasmine.createSpyObj('_', ['find', 'reduce']);
     output = jasmine.createSpyObj('output', ['ascend', 'descend', 'printSuccess', 'printMissingDefinition']);
     executionFactory = require('../../../lib/execution/executionFactory')(output, _);
   });
@@ -68,6 +68,8 @@ describe('executionFactory', function () {
   describe('stepExecutor', function () {
     it('should locate the correct definition to call', function () {
 
+      _.reduce.andReturn([]);
+
       var step = {text: 'Step 3'};
       var definitions = [{text: 'Step 1', executor: jasmine.createSpy()}, {text: 'Step 2', executor: jasmine.createSpy()}, {text: 'Step 3', executor: jasmine.createSpy()}, {text: 'Step 4', executor: jasmine.createSpy()}]
       _.find.andReturn(definitions[2]);
@@ -88,6 +90,26 @@ describe('executionFactory', function () {
       executionFactory.stepExecutor(step, definitions)();
 
       expect(output.printMissingDefinition).toHaveBeenCalledWith(step.text);
+    });
+
+    it('should populate the params and values when looking up the definition', function(){
+
+      var step = {text: 'Step 3 with \'First\' and \'Second\''};
+      var definitions = [{text: 'Step 1', executor: jasmine.createSpy()}, {text: 'Step 2', executor: jasmine.createSpy()}, {text: 'Step 3 with \'<param1>\' and \'<param2>\'', parameters: ['param1', 'param2'], pattern: 'Step 3 with \'([^"]*)\' and \'([^"]*)\'', executor: jasmine.createSpy()}, {text: 'Step 4', executor: jasmine.createSpy()}]
+      _.find.andReturn(definitions[2]);
+
+      _.reduce.andCallFake(function(values, iterator){
+        var arr = [];
+        for(var i in values){
+          arr = iterator(arr, values[i], i);
+        }
+        return arr;
+      });
+
+
+      executionFactory.stepExecutor(step, definitions)();
+
+      expect(definitions[2].executor).toHaveBeenCalledWith([{name: 'param1', value: 'First'}, {name: 'param2', value: 'Second'}]);
     });
   });
 });

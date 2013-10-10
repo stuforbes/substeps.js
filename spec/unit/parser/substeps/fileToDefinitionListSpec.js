@@ -114,7 +114,7 @@ describe('fileToDefinitionList', function(){
     expect(definitions.length).toBe(1);
 
     expect(definitions[0].parameters.length).toBe(0);
-    expect(definitions[0].pattern.test('A parameterless Substep')).toBe(true);
+    expect(definitions[0].pattern).toBe('A parameterless Substep');
   });
 
   it('should have a single parameter in the parameter list for a definition that contains 1 parameter', function(){
@@ -125,7 +125,7 @@ describe('fileToDefinitionList', function(){
 
     expect(definitions[0].parameters.length).toBe(1);
     expect(definitions[0].parameters[0]).toBe('single');
-    expect(definitions[0].pattern.test('A something parameter Substep')).toBe(true);
+    expect(definitions[0].pattern).toBe('A ([^"]*) parameter Substep');
   });
 
   it('should have multiple parameters in the parameter list for a definition that contains 3 parameter', function(){
@@ -138,7 +138,7 @@ describe('fileToDefinitionList', function(){
     expect(definitions[0].parameters[0]).toBe('first');
     expect(definitions[0].parameters[1]).toBe('second');
     expect(definitions[0].parameters[2]).toBe('third');
-    expect(definitions[0].pattern.test('The good parameter, the bad parameter and the ugly parameter in the Substep')).toBe(true);
+    expect(definitions[0].pattern).toBe('The ([^"]*) parameter, the ([^"]*) parameter and the ([^"]*) parameter in the Substep');
   });
 
   it('should have an empty parameter list for a step that doesnt contain parameters', function(){
