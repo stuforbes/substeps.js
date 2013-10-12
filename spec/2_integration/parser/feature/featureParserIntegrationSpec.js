@@ -21,7 +21,7 @@ describe('featureParser integration', function () {
 
   });
 
-  it('should convert all files to a list of features', function () {
+  xit('should convert all files to a list of features', function () {
 
     var onCompleteCalled = false;
 

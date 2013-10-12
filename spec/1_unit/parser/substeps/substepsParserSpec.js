@@ -3,16 +3,18 @@
 describe('substepsParser', function(){
 
   var async;
-  var substepExecutionBinder;
+  var substepsTree;
+  var substepsExecutionBinder;
   var fileToDefinitionList;
   var substepsParser;
 
   beforeEach(function(){
     async = jasmine.createSpyObj('asyncjs', ['list', 'readFile', 'map', 'reduce', 'each', 'end']);
     fileToDefinitionList = jasmine.createSpyObj('fileToDefinitionList', ['apply']);
-    substepExecutionBinder = jasmine.createSpyObj('substepExecutionBinder', ['create']);
+    substepsTree = jasmine.createSpyObj('substepGraph', ['create']);
+    substepsExecutionBinder = jasmine.createSpyObj('substepExecutionBinder', ['create']);
 
-    substepsParser = require('../../../../lib/parser/substeps/substepsParser')(async, substepExecutionBinder, fileToDefinitionList);
+    substepsParser = require('../../../../lib/parser/substeps/substepsParser')(async, substepsTree, substepsExecutionBinder, fileToDefinitionList);
 
     async.list.andReturn(async);
     async.readFile.andReturn(async);
@@ -79,15 +81,19 @@ describe('substepsParser', function(){
     expect(result[3].text).toBe('definition4');
   });
 
-  it('should append execution info to the definitions', function(){
+  it('should generate the substeps tree and append execution info to the definitions', function(){
 
     var next = jasmine.createSpy('next');
     var executionBinderImpl = {
       bindExecutionTo: jasmine.createSpy('executionBinderImpl')
     };
+    var substepsTreeImpl = {
+      createSubstepsTreeFrom: jasmine.createSpy('substepsTreeImpl')
+    };
     var definitionList = [{text: 'definition1'}, {text: 'definition2'}];
 
-    substepExecutionBinder.create.andReturn(executionBinderImpl);
+    substepsTree.create.andReturn(substepsTreeImpl);
+    substepsExecutionBinder.create.andReturn(executionBinderImpl);
 
     fileToDefinitionList.apply.andReturn(definitionList);
 
@@ -98,6 +104,7 @@ describe('substepsParser', function(){
 
     substepsParser.parse({data: 'file data'}, jasmine.createSpy());
 
+    expect(substepsTreeImpl.createSubstepsTreeFrom).toHaveBeenCalledWith(definitionList);
     expect(executionBinderImpl.bindExecutionTo).toHaveBeenCalledWith(definitionList);
   });
 });

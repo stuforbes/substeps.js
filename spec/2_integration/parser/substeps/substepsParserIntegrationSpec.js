@@ -44,12 +44,14 @@ describe('substepsParser integration', function(){
     substepsParser.parse(files, function(error, results){
       expect(error).not.toBeDefined();
 
-      expect(results.length).toBe(4);
-      expect(results[0]).isDefinition('The 1st substep', ['Given a step', 'When a step', 'Then a step']);
-      expect(results[1]).isDefinition('The 2nd substep', ['Given a step', 'When a step', 'Then a step']);
-      expect(results[2]).isDefinition('The 3rd substep', ['Given a step', 'When a step', 'Then a step']);
-      expect(results[3]).isDefinition('The 4th substep', ['Given a step', 'When a step', 'Then a step']);
-
+      expect(results).toBeDefined();
+      if(results){
+        expect(results.length).toBe(4);
+        expect(results[0]).isDefinition('The 1st substep', ['Given a step', 'When a step', 'Then a step']);
+        expect(results[1]).isDefinition('The 2nd substep', ['Given a step', 'When a step', 'Then a step']);
+        expect(results[2]).isDefinition('The 3rd substep', ['Given a step', 'When a step', 'Then a step']);
+        expect(results[3]).isDefinition('The 4th substep', ['Given a step', 'When a step', 'Then a step']);
+      }
       onCompleteCalled = true;
     });
 

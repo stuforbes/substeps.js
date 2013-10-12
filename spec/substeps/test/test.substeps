@@ -1,5 +1,5 @@
 Define: Given a '<param>' step
     Do secondary substep with '<param>'
 
-Define: Do secondary substep with '<subste-param>'
+Define: Do secondary substep with '<substep-param>'
     Some other step
