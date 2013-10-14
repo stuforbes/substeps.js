@@ -21,14 +21,14 @@ describe('featureParser integration', function () {
 
   });
 
-  xit('should convert all files to a list of features', function () {
+  it('should convert all files to a list of features', function () {
 
     var onCompleteCalled = false;
 
     var files = [
-      {path: 'spec/integration/parser/feature/data/feature/feature1.feature', name: 'feature1.feature'},
-      {path: 'spec/integration/parser/feature/data/feature/feature2.feature', name: 'feature2.feature'}
-    ]
+      {path: 'spec/2_integration/parser/feature/data/feature/feature1.feature', name: 'feature1.feature'},
+      {path: 'spec/2_integration/parser/feature/data/feature/feature2.feature', name: 'feature2.feature'}
+    ];
 
     var feature1 = createFeatureModel('1st');
     var feature2 = createFeatureModel('2nd');
@@ -37,9 +37,11 @@ describe('featureParser integration', function () {
       expect(error).toBeUndefined();
       expect(results).toBeDefined();
 
-      expect(results.length).toBe(2);
-      expect(results[0]).isFeature(feature1);
-      expect(results[1]).isFeature(feature2);
+      if(results){
+        expect(results.length).toBe(2);
+        expect(results[0]).isFeature(feature1);
+        expect(results[1]).isFeature(feature2);
+      }
 
       onCompleteCalled = true;
     });

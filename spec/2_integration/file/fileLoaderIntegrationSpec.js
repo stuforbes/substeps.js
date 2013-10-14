@@ -15,7 +15,7 @@ describe('fileLoader integration', function(){
 
     var onCompleteCalled = false;
 
-    fileLoader.loadFilesOfType('spec/integration/file/data/features', 'feature', function(error, results){
+    fileLoader.loadFilesOfType('spec/2_integration/file/data/features', 'feature', function(error, results){
 
       expect(error).toBeNull();
       var filenames = results.map(function (f) {
