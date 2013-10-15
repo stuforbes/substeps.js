@@ -5,14 +5,17 @@ describe('featureParser', function(){
   var async;
   var fileToFeature;
   var featureParser;
+  var featureStepToDefinitionBinder;
   var featureExecutionBinder;
 
   beforeEach(function(){
     async = jasmine.createSpyObj('asyncjs', ['list', 'readFile', 'map', 'reduce', 'each', 'end']);
     fileToFeature = jasmine.createSpyObj('fileToFeatureList', ['apply']);
+
+    featureStepToDefinitionBinder = jasmine.createSpyObj('featureStepToDefinitionBinder', ['create']);
     featureExecutionBinder = jasmine.createSpyObj('featureExecutionBinder', ['create']);
 
-    featureParser = require('../../../../lib/parser/feature/featureParser')(async, fileToFeature, featureExecutionBinder);
+    featureParser = require('../../../../lib/parser/feature/featureParser')(async, fileToFeature, featureStepToDefinitionBinder, featureExecutionBinder);
 
     async.list.andReturn(async);
     async.readFile.andReturn(async);
@@ -104,15 +107,19 @@ describe('featureParser', function(){
     expect(result[2]).toBe(current);
   });
 
-  it('should append execution info to the features', function(){
+  it('should append step definitions and execution info to the features', function(){
 
     var next = jasmine.createSpy('next');
     var executionBinderImpl = {
       bindExecutionTo: jasmine.createSpy('executionBinderImpl')
     };
+    var stepToDefinitionBinderImpl = {
+      bindDefinitionsToStepsIn: jasmine.createSpy('stepToDefinitionBinderImpl')
+    };
     var substepDefinitionList = [{text: 'definition1'}, {text: 'definition2'}];
     var featureList = [{text: 'feature1'}, {text: 'feature2'}];
 
+    featureStepToDefinitionBinder.create.andReturn(stepToDefinitionBinderImpl);
     featureExecutionBinder.create.andReturn(executionBinderImpl);
 
     async.each.andCallFake(function(callback){
@@ -122,6 +129,7 @@ describe('featureParser', function(){
 
     featureParser.parse({data: 'file data'}, substepDefinitionList, jasmine.createSpy());
 
+    expect(stepToDefinitionBinderImpl.bindDefinitionsToStepsIn).toHaveBeenCalledWith(featureList);
     expect(executionBinderImpl.bindExecutionTo).toHaveBeenCalledWith(featureList, substepDefinitionList);
     expect(next).toHaveBeenCalledWith(null, featureList);
   });

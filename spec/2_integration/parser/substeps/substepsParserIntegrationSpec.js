@@ -3,15 +3,18 @@
 describe('substepsParser integration', function(){
 
   var executionFactory;
+  var definitionRegistry;
   var output;
 
   var substepsParser;
 
   beforeEach(function(){
+    var _ = require('underscore');
     output = require('../../../../lib/cli/consoleoutput')();
-    executionFactory = require('../../../../lib/execution/executionFactory')(output, require('underscore'));
+    definitionRegistry = require('../../../../lib/parser/substeps/definitionRegistry')(_);
+    executionFactory = require('../../../../lib/execution/executionFactory')(output, _);
 
-    substepsParser = require('../../../../lib/parser/substeps/substepsParserFactory')(executionFactory, output);
+    substepsParser = require('../../../../lib/parser/substeps/substepsParserFactory')(executionFactory, definitionRegistry, output);
   });
 
   beforeEach(function(){
