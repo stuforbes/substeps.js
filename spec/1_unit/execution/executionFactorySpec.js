@@ -8,9 +8,9 @@ describe('executionFactory', function () {
   var executionFactory;
 
   beforeEach(function () {
-    _ = jasmine.createSpyObj('_', ['find', 'reduce']);
+    _ = require('underscore');
     output = jasmine.createSpyObj('output', ['ascend', 'descend', 'printSuccess', 'printMissingDefinition', 'printFailure']);
-    executionFactory = require('../../../lib/execution/executionFactory')(output);
+    executionFactory = require('../../../lib/execution/executionFactory')(output, _);
   });
 
   describe('featureExecutor', function () {
@@ -102,25 +102,28 @@ describe('executionFactory', function () {
       expect(output.printMissingDefinition).toHaveBeenCalledWith(step.text);
     });
 
-//    it('should populate the params and values when looking up the definition', function(){
-//
-//      var step = {text: 'Step 3 with \'First\' and \'Second\''};
-//      var definitions = [{text: 'Step 1', executor: jasmine.createSpy()}, {text: 'Step 2', executor: jasmine.createSpy()}, {text: 'Step 3 with \'<param1>\' and \'<param2>\'', parameters: ['param1', 'param2'], pattern: 'Step 3 with \'([^"]*)\' and \'([^"]*)\'', executor: jasmine.createSpy()}, {text: 'Step 4', executor: jasmine.createSpy()}]
-//      _.find.andReturn(definitions[2]);
-//
-//      _.reduce.andCallFake(function(values, iterator){
-//        var arr = [];
-//        for(var i in values){
-//          arr = iterator(arr, values[i], i);
-//        }
-//        return arr;
-//      });
-//
-//
-//      executionFactory.stepExecutor(step, definitions)();
-//
-//      expect(definitions[2].executor).toHaveBeenCalledWith([{name: 'param1', value: 'First'}, {name: 'param2', value: 'Second'}]);
-//    });
+    it('should pass parameters through during execution', function(){
+
+      var substep1 = {text: 'call step with \'<param1>\'', parameters: ['param1'], execute: jasmine.createSpy()};
+      var substep2 = {text: 'call step with \'<param2>\'', parameters: ['param2'], execute: jasmine.createSpy()};
+      var definition = {text: 'Step 3 with \'<param1>\' and \'<param2>\'', parameters: ['param1', 'param2'], pattern: 'Step 3 with \'([^"]*)\' and \'([^"]*)\'', steps: [substep1, substep2]};
+      var step = {text: 'Step 3 with \'First\' and \'Second\'', status: 'substeps-target', definition: definition};
+
+      executionFactory.stepExecutor(step)();
+
+      expect(definition.steps[0].execute).toHaveBeenCalledWith([{param1: 'First'}]);
+      expect(definition.steps[1].execute).toHaveBeenCalledWith([{param2: 'Second'}]);
+    });
+
+    it('should use the parentParams to update a steps processed text', function(){
+
+      var step = {text: 'A step with parameter \'<param>\'', status: 'substeps-target', execute: jasmine.createSpy()};
+
+      executionFactory.stepExecutor(step)([{param: 'A Parameter'}]);
+
+      expect(step.processedText()).toBe('A step with parameter \'A Parameter\'');
+    });
+
 
     it('should report a problem if the status cannot be determined', function(){
       var step = {text: 'Step 3', status: 'unknown-target'};
