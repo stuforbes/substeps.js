@@ -15,7 +15,7 @@ describe('featureParser integration', function () {
     output = require('../../../../lib/cli/consoleoutput')();
 
     executionFactory = require('../../../../lib/execution/executionFactory')(output, _);
-    featureParser = require('../../../../lib/parser/substeps/definitionRegistry')(_);
+    definitionRegistry = require('../../../../lib/parser/substeps/definitionRegistry')(_);
     featureParser = require('../../../../lib/parser/feature/featureParserFactory')(executionFactory, definitionRegistry, output, _);
   });
 

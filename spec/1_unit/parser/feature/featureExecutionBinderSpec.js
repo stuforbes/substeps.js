@@ -25,17 +25,17 @@ describe('featureExecutionBinder', function(){
     var feature1 = { background: { steps: [{text: 'Given a background step'}, {text: 'When a background step'}, {text: 'Then a background step'}] } }
     var feature2 = { background: { steps: [{text: 'Given a background step'}, {text: 'When a background step'}, {text: 'Then a background step'}] } }
 
-    featureExecutionBinder.bindExecutionTo([feature1, feature2], []);
+    featureExecutionBinder.bindExecutionTo([feature1, feature2]);
 
-    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature1.background.steps[0], []);
-    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature1.background.steps[1], []);
-    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature1.background.steps[2], []);
+    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature1.background.steps[0]);
+    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature1.background.steps[1]);
+    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature1.background.steps[2]);
     expect(executionFactory.stepContainerExecutor).toHaveBeenCalledWith(feature1.background);
     expect(executionFactory.featureExecutor).toHaveBeenCalledWith(feature1);
 
-    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature2.background.steps[0], []);
-    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature2.background.steps[1], []);
-    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature2.background.steps[2], []);
+    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature2.background.steps[0]);
+    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature2.background.steps[1]);
+    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature2.background.steps[2]);
     expect(executionFactory.stepContainerExecutor).toHaveBeenCalledWith(feature2.background);
     expect(executionFactory.featureExecutor).toHaveBeenCalledWith(feature2);
   });
@@ -45,17 +45,17 @@ describe('featureExecutionBinder', function(){
     var feature1 = { scenarios: [{ steps: [{text: 'Given a scenario step'}, {text: 'When a scenario step'}, {text: 'Then a scenario step'}] }] };
     var feature2 = { scenarios: [{ steps: [{text: 'Given a scenario step'}, {text: 'When a scenario step'}, {text: 'Then a scenario step'}] }] };
 
-    featureExecutionBinder.bindExecutionTo([feature1, feature2], []);
+    featureExecutionBinder.bindExecutionTo([feature1, feature2]);
 
-    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature1.scenarios[0].steps[0], []);
-    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature1.scenarios[0].steps[1], []);
-    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature1.scenarios[0].steps[2], []);
+    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature1.scenarios[0].steps[0]);
+    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature1.scenarios[0].steps[1]);
+    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature1.scenarios[0].steps[2]);
     expect(executionFactory.stepContainerExecutor).toHaveBeenCalledWith(feature1.scenarios[0]);
     expect(executionFactory.featureExecutor).toHaveBeenCalledWith(feature1);
 
-    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature2.scenarios[0].steps[0], []);
-    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature2.scenarios[0].steps[1], []);
-    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature2.scenarios[0].steps[2], []);
+    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature2.scenarios[0].steps[0]);
+    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature2.scenarios[0].steps[1]);
+    expect(executionFactory.stepExecutor).toHaveBeenCalledWith(feature2.scenarios[0].steps[2]);
     expect(executionFactory.stepContainerExecutor).toHaveBeenCalledWith(feature2.scenarios[0]);
     expect(executionFactory.featureExecutor).toHaveBeenCalledWith(feature2);
   });
