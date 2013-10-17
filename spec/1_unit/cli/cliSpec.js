@@ -19,6 +19,7 @@ describe('cli', function(){
   it('should stop the process if the feature folder is not present', function(){
 
     commander.substeps = 'substeps';
+    commander.steps = 'steps';
 
     cli.configuration();
 
@@ -28,20 +29,33 @@ describe('cli', function(){
   it('should stop the process if the substeps folder is not present', function(){
 
     commander.features = 'features';
+    commander.steps = 'steps';
 
     cli.configuration();
 
     expect(process.exit).toHaveBeenCalled();
   });
 
-  it('should return valid configuration if the feature file and substeps file are present', function(){
+  it('should stop the process if the steps are not present', function(){
 
     commander.features = 'features';
     commander.substeps = 'substeps';
 
+    cli.configuration();
+
+    expect(process.exit).toHaveBeenCalled();
+  });
+
+  it('should return valid configuration if the feature file, substeps file and steps are present', function(){
+
+    commander.features = 'features';
+    commander.substeps = 'substeps';
+    commander.steps = 'steps';
+
     var config = cli.configuration();
     expect(config.features).toBe('features');
     expect(config.substeps).toBe('substeps');
+    expect(config.steps).toBe('steps');
 
     expect(process.exit).not.toHaveBeenCalled();
 

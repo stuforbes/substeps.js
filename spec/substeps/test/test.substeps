@@ -1,5 +1,11 @@
 Define: Given a '<param>' step
     Do secondary substep with '<param>'
+    Do another secondary substep with '<param>'
 
 Define: Do secondary substep with '<substep-param>'
-    Some other step
+    Call an external step with '<substep-param>' and value '1'
+    Call an external step with '<substep-param>' and value '2'
+
+Define: Do another secondary substep with '<substep-param>'
+    Call an external step with '<substep-param>' and value '3'
+    Call an external step with '<substep-param>' and value '4'
