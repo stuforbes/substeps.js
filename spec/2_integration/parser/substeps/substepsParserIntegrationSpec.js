@@ -3,7 +3,7 @@
 describe('substepsParser integration', function(){
 
   var executionFactory;
-  var definitionRegistry;
+  var stepRegistry;
   var output;
 
   var substepsParser;
@@ -11,10 +11,10 @@ describe('substepsParser integration', function(){
   beforeEach(function(){
     var _ = require('underscore');
     output = require('../../../../lib/cli/consoleoutput')();
-    definitionRegistry = require('../../../../lib/parser/substeps/definitionRegistry')(_);
+    stepRegistry = require('../../../../lib/step/stepRegistry')(_);
     executionFactory = require('../../../../lib/execution/executionFactory')(output, _);
 
-    substepsParser = require('../../../../lib/parser/substeps/substepsParserFactory')(executionFactory, definitionRegistry, output);
+    substepsParser = require('../../../../lib/parser/substeps/substepsParserFactory')(executionFactory, stepRegistry, output);
   });
 
   beforeEach(function(){
@@ -65,9 +65,11 @@ describe('substepsParser integration', function(){
     var onCompleteCalled = false;
 
     var files = [{path: 'spec/2_integration/parser/substeps/data/substeps/substeps1.substeps', name: 'substeps1.substeps'}];
-    var steps = [{text: 'Given a step'}, {text: 'When a step'}, {text: 'Then a step'}];
+    var steps = [{text: 'Given a step', pattern: 'Given a step'}, {text: 'When a step', pattern: 'When a step'}, {text: 'Then a step', pattern: 'Then a step'}];
 
-    substepsParser.parse(files, [], function(error, results){
+    steps.forEach(function(step){ stepRegistry.registerStep(step); });
+
+    substepsParser.parse(files, steps, function(error, results){
       expect(error).not.toBeDefined();
 
       expect(results).toBeDefined();

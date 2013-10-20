@@ -40,7 +40,7 @@ describe('substepsTree', function(){
 
   it('should update the status of each substep step in a definition to substeps-target, and bind the target definition to it', function(){
 
-    substepsTree.createSubstepsTreeFrom([firstDefinition, secondDefinition, thirdDefinition, stepDefinition], []);
+    substepsTree.createSubstepsTreeFrom([firstDefinition, secondDefinition, thirdDefinition, stepDefinition]);
 
     expect(stepDefinition.steps[0].status).toBe('substeps-target');
     expect(stepDefinition.steps[1].status).toBe('substeps-target');
@@ -57,7 +57,7 @@ describe('substepsTree', function(){
   });
 
   it('should update the status of each substep step in a definition to substeps-target, and bind the target definition to it, even when the definition is defined later', function(){
-    substepsTree.createSubstepsTreeFrom([stepDefinition, firstDefinition, secondDefinition, thirdDefinition], []);
+    substepsTree.createSubstepsTreeFrom([stepDefinition, firstDefinition, secondDefinition, thirdDefinition]);
 
     expect(stepDefinition.steps[0].status).toBe('substeps-target');
     expect(stepDefinition.steps[1].status).toBe('substeps-target');
@@ -83,7 +83,7 @@ describe('substepsTree', function(){
       {text: 'Given a \'first\' something'}, {text: 'When a \'second\' something'}, {text: 'Then a \'third\' something'}
     ]};
 
-    substepsTree.createSubstepsTreeFrom([firstDefinition, secondDefinition, thirdDefinition, stepDefinition], []);
+    substepsTree.createSubstepsTreeFrom([firstDefinition, secondDefinition, thirdDefinition, stepDefinition]);
 
     expect(stepDefinition.steps[0].status).toBe('substeps-target');
     expect(stepDefinition.steps[1].status).toBe('substeps-target');
@@ -105,7 +105,7 @@ describe('substepsTree', function(){
       {text: 'Given something', status: 'missing-target'}, {text: 'unknown-When an \'unknown\' something', status: 'missing-target'}, {text: 'Then something', status: 'missing-target'}
     ]};
 
-    substepsTree.createSubstepsTreeFrom([firstDefinition, secondDefinition, thirdDefinition, stepDefinition], []);
+    substepsTree.createSubstepsTreeFrom([firstDefinition, secondDefinition, thirdDefinition, stepDefinition]);
 
     expect(stepDefinition.steps[0].status).toBe('substeps-target');
     expect(stepDefinition.steps[1].status).toBe('missing-target');
@@ -118,7 +118,7 @@ describe('substepsTree', function(){
 
   it('should update the status of each step-impl step in a definition to substeps-target, and bind the target step impl to it', function(){
 
-    substepsTree.createSubstepsTreeFrom([stepDefinition], [firstStep, secondStep, thirdStep]);
+    substepsTree.createSubstepsTreeFrom([stepDefinition]);
 
     expect(stepDefinition.steps[3].status).toBe('step-impl-target');
     expect(stepDefinition.steps[4].status).toBe('step-impl-target');
@@ -138,7 +138,7 @@ describe('substepsTree', function(){
     firstStep = {text: 'Given a \'<param>\' step', pattern: 'Given a \'([^"]*)\' step'};
     secondStep = {text: 'Given a \'<param>\' step', pattern: 'When a \'([^"]*)\' step'};
     thirdStep = {text: 'Given a \'<param>\' step', pattern: 'Then a \'([^"]*)\' step'};
-    substepsTree.createSubstepsTreeFrom([stepDefinition], [firstStep, secondStep, thirdStep]);
+    substepsTree.createSubstepsTreeFrom([stepDefinition]);
 
     expect(stepDefinition.steps[0].status).toBe('step-impl-target');
     expect(stepDefinition.steps[1].status).toBe('step-impl-target');
