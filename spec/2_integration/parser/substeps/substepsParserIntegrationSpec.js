@@ -44,7 +44,7 @@ describe('substepsParser integration', function(){
       {path: 'spec/2_integration/parser/substeps/data/substeps/substeps2.substeps', name: 'substeps2.substeps'}
     ];
 
-    substepsParser.parse(files, [], function(error, results){
+    substepsParser.parse(files, function(error, results){
       expect(error).not.toBeDefined();
 
       expect(results).toBeDefined();
@@ -69,7 +69,7 @@ describe('substepsParser integration', function(){
 
     steps.forEach(function(step){ stepRegistry.registerStep(step); });
 
-    substepsParser.parse(files, steps, function(error, results){
+    substepsParser.parse(files, function(error, results){
       expect(error).not.toBeDefined();
 
       expect(results).toBeDefined();

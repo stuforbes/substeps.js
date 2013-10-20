@@ -6,18 +6,20 @@ describe('stepLoader integration', function(){
     return require(__dirname+'/'+module);
   };
 
-  var async,
+  var stepRegistry,
+      async,
       fs,
       vm;
 
   var stepLoader;
 
   beforeEach(function(){
+    stepRegistry = require('../../../lib/step/stepRegistry')(require('underscore'));
     async = require('asyncjs');
     fs = require('fs');
     vm = require('vm');
 
-    stepLoader = require('../../../lib/step/stepLoader.js')(async, fs, vm);
+    stepLoader = require('../../../lib/step/stepLoader')(stepRegistry, async, fs, vm);
   });
 
   it('should load all steps within a step definition block', function(){

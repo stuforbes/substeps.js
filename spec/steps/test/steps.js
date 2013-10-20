@@ -1,6 +1,6 @@
 stepDefinitions('Sample step definitions', function(){
 
-  step('Call an external step with \'$param\' and value \'$value\'', function(param, value){
+  step('Call an external step with \'([^"]*)\' and value \'([^"]*)\'', function(param, value){
     console.log('Invoked step \'Call an external step with \''+param+'\' and value \''+value+'\'');
   });
 

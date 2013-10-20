@@ -29,7 +29,7 @@ describe('substepsParser', function(){
     var onComplete = jasmine.createSpy('onComplete');
     var files = ['file1', 'file2', 'file3'];
 
-    substepsParser.parse(files, [], onComplete);
+    substepsParser.parse(files, onComplete);
 
     expect(async.list).toHaveBeenCalledWith(files);
     expect(async.readFile).toHaveBeenCalledWith('utf8');
@@ -72,7 +72,7 @@ describe('substepsParser', function(){
       return async;
     });
 
-    substepsParser.parse([{data: 'file data'}], [], jasmine.createSpy());
+    substepsParser.parse([{data: 'file data'}], jasmine.createSpy());
 
     expect(result.length).toBe(4);
     expect(result[0].text).toBe('definition1');
@@ -103,9 +103,9 @@ describe('substepsParser', function(){
       return async;
     });
 
-    substepsParser.parse({data: 'file data'}, steps, jasmine.createSpy());
+    substepsParser.parse({data: 'file data'}, jasmine.createSpy());
 
-    expect(substepsTreeImpl.createSubstepsTreeFrom).toHaveBeenCalledWith(definitionList, steps);
+    expect(substepsTreeImpl.createSubstepsTreeFrom).toHaveBeenCalledWith(definitionList);
     expect(executionBinderImpl.bindExecutionTo).toHaveBeenCalledWith(definitionList);
   });
 });
