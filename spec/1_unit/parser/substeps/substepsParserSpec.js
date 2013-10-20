@@ -29,7 +29,7 @@ describe('substepsParser', function(){
     var onComplete = jasmine.createSpy('onComplete');
     var files = ['file1', 'file2', 'file3'];
 
-    substepsParser.parse(files, onComplete);
+    substepsParser.parse(files, [], onComplete);
 
     expect(async.list).toHaveBeenCalledWith(files);
     expect(async.readFile).toHaveBeenCalledWith('utf8');
@@ -72,7 +72,7 @@ describe('substepsParser', function(){
       return async;
     });
 
-    substepsParser.parse([{data: 'file data'}], jasmine.createSpy());
+    substepsParser.parse([{data: 'file data'}], [], jasmine.createSpy());
 
     expect(result.length).toBe(4);
     expect(result[0].text).toBe('definition1');
@@ -91,6 +91,7 @@ describe('substepsParser', function(){
       createSubstepsTreeFrom: jasmine.createSpy('substepsTreeImpl')
     };
     var definitionList = [{text: 'definition1'}, {text: 'definition2'}];
+    var steps = [{text: 'step 1'}, {text: 'step 2'}];
 
     substepsTree.create.andReturn(substepsTreeImpl);
     substepsExecutionBinder.create.andReturn(executionBinderImpl);
@@ -102,9 +103,9 @@ describe('substepsParser', function(){
       return async;
     });
 
-    substepsParser.parse({data: 'file data'}, jasmine.createSpy());
+    substepsParser.parse({data: 'file data'}, steps, jasmine.createSpy());
 
-    expect(substepsTreeImpl.createSubstepsTreeFrom).toHaveBeenCalledWith(definitionList);
+    expect(substepsTreeImpl.createSubstepsTreeFrom).toHaveBeenCalledWith(definitionList, steps);
     expect(executionBinderImpl.bindExecutionTo).toHaveBeenCalledWith(definitionList);
   });
 });

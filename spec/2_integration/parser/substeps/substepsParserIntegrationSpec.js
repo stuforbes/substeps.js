@@ -44,7 +44,7 @@ describe('substepsParser integration', function(){
       {path: 'spec/2_integration/parser/substeps/data/substeps/substeps2.substeps', name: 'substeps2.substeps'}
     ];
 
-    substepsParser.parse(files, function(error, results){
+    substepsParser.parse(files, [], function(error, results){
       expect(error).not.toBeDefined();
 
       expect(results).toBeDefined();
@@ -59,5 +59,31 @@ describe('substepsParser integration', function(){
     });
 
     waitsFor(function() { return onCompleteCalled; });
+  });
+
+  it('should attach step impls to substep steps', function(){
+    var onCompleteCalled = false;
+
+    var files = [{path: 'spec/2_integration/parser/substeps/data/substeps/substeps1.substeps', name: 'substeps1.substeps'}];
+    var steps = [{text: 'Given a step'}, {text: 'When a step'}, {text: 'Then a step'}];
+
+    substepsParser.parse(files, [], function(error, results){
+      expect(error).not.toBeDefined();
+
+      expect(results).toBeDefined();
+      if(results){
+        expect(results.length).toBe(2);
+        expect(results[0].steps[0].status).toBe('step-impl-target');
+        expect(results[0].steps[1].status).toBe('step-impl-target');
+        expect(results[0].steps[2].status).toBe('step-impl-target');
+        expect(results[1].steps[0].status).toBe('step-impl-target');
+        expect(results[1].steps[1].status).toBe('step-impl-target');
+        expect(results[1].steps[2].status).toBe('step-impl-target');
+      }
+      onCompleteCalled = true;
+    });
+
+    waitsFor(function() { return onCompleteCalled; });
+
   });
 });
