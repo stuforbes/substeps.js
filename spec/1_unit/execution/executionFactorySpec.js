@@ -131,7 +131,7 @@ describe('executionFactory', function () {
 
       executionFactory.stepExecutor(step)();
 
-      expect(stepImpl.execute.apply).toHaveBeenCalledWith(['First', 'Second']);
+      expect(stepImpl.execute.apply).toHaveBeenCalledWith(jasmine.any(Object), ['First', 'Second']);
     });
 
     it('should use the parentParams to update a steps processed text', function(){
