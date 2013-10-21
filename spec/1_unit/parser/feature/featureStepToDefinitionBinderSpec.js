@@ -22,7 +22,7 @@ describe('featureStepToDefinitionBinder', function(){
 
     definitionRegistry.locateForText.andCallFake(function(text){
       for(var i=0; i<definitions.length; i++){
-        if(definitions[i].text === text) return definitions[i];
+        if(definitions[i].text === text) return {type: 'substep', value: definitions[i]};
       }
       return undefined;
     });
@@ -54,7 +54,7 @@ describe('featureStepToDefinitionBinder', function(){
 
     definitionRegistry.locateForText.andCallFake(function(text){
       for(var i=0; i<definitions.length; i++){
-        if(definitions[i].text === text) return definitions[i];
+        if(definitions[i].text === text) return {type: 'substep', value: definitions[i]};
       }
       return undefined;
     });

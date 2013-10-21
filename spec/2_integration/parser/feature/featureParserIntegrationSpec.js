@@ -36,7 +36,7 @@ describe('featureParser integration', function () {
     var feature1 = createFeatureModel('1st');
     var feature2 = createFeatureModel('2nd');
 
-    featureParser.parse(files, [], function (error, results) {
+    featureParser.parse(files, function (error, results) {
       expect(error).toBeUndefined();
       expect(results).toBeDefined();
 

@@ -29,9 +29,8 @@ describe('featureParser', function(){
 
     var onComplete = jasmine.createSpy('onComplete');
     var files = ['file1', 'file2', 'file3'];
-    var substeps = ['substep1', 'substep2', 'substep3'];
 
-    featureParser.parse(files, substeps, onComplete);
+    featureParser.parse(files, onComplete);
 
     expect(async.list).toHaveBeenCalledWith(files);
     expect(async.readFile).toHaveBeenCalledWith('utf8');
@@ -78,7 +77,7 @@ describe('featureParser', function(){
 
     featureParser.parse([file], jasmine.createSpy());
 
-    expect(result).not.toBeNull()
+    expect(result).not.toBeNull();
     expect(result.length).toBe(2);
     expect(result[0]).toBe(previous);
     expect(result[1]).toBe(current);
@@ -100,7 +99,7 @@ describe('featureParser', function(){
 
     featureParser.parse([file], jasmine.createSpy());
 
-    expect(result).not.toBeNull()
+    expect(result).not.toBeNull();
     expect(result.length).toBe(3);
     expect(result[0]).toBe(previous[0]);
     expect(result[1]).toBe(previous[1]);
@@ -130,7 +129,7 @@ describe('featureParser', function(){
     featureParser.parse({data: 'file data'}, substepDefinitionList, jasmine.createSpy());
 
     expect(stepToDefinitionBinderImpl.bindDefinitionsToStepsIn).toHaveBeenCalledWith(featureList);
-    expect(executionBinderImpl.bindExecutionTo).toHaveBeenCalledWith(featureList, substepDefinitionList);
+    expect(executionBinderImpl.bindExecutionTo).toHaveBeenCalledWith(featureList);
     expect(next).toHaveBeenCalledWith(null, featureList);
   });
 });
