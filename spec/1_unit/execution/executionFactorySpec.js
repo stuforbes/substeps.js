@@ -93,6 +93,15 @@ describe('executionFactory', function () {
       expect(step.definition.steps[1].execute).toHaveBeenCalled();
     });
 
+    it('should call the execute method of the step impl when executing a step with status of step-impl-target', function () {
+
+      var step = {text: 'Step 1', status: 'step-impl-target', stepImpl: {execute: jasmine.createSpy()}};
+
+      executionFactory.stepExecutor(step)();
+
+      expect(step.stepImpl.execute).toHaveBeenCalled();
+    });
+
     it('should output a warning if the step could not be located', function () {
 
       var step = {text: 'Step 3', status: 'missing-target'};
@@ -102,7 +111,7 @@ describe('executionFactory', function () {
       expect(output.printMissingDefinition).toHaveBeenCalledWith(step.text);
     });
 
-    it('should pass parameters through during execution', function(){
+    it('should pass parameters through to substeps during execution', function(){
 
       var substep1 = {text: 'call step with \'<param1>\'', parameters: ['param1'], execute: jasmine.createSpy()};
       var substep2 = {text: 'call step with \'<param2>\'', parameters: ['param2'], execute: jasmine.createSpy()};
@@ -113,6 +122,16 @@ describe('executionFactory', function () {
 
       expect(definition.steps[0].execute).toHaveBeenCalledWith([{param1: 'First'}]);
       expect(definition.steps[1].execute).toHaveBeenCalledWith([{param2: 'Second'}]);
+    });
+
+    it('should pass parameters through to step impls during execution', function(){
+
+      var stepImpl = {pattern: 'Step 3 with \'([^"]*)\' and \'([^"]*)\'', execute: {apply: jasmine.createSpy()}};
+      var step = {text: 'Step 3 with \'First\' and \'Second\'', status: 'step-impl-target', stepImpl: stepImpl};
+
+      executionFactory.stepExecutor(step)();
+
+      expect(stepImpl.execute.apply).toHaveBeenCalledWith(['First', 'Second']);
     });
 
     it('should use the parentParams to update a steps processed text', function(){
@@ -147,6 +166,14 @@ describe('executionFactory', function () {
       executionFactory.stepExecutor(step)();
 
       expect(output.printFailure).toHaveBeenCalledWith('Step 3 - No definition associated to step');
+    });
+
+    it('should report a problem if the step has a status of step-impl-target but no stepImpl', function(){
+      var step = {text: 'Step 3', status: 'step-impl-target'};
+
+      executionFactory.stepExecutor(step)();
+
+      expect(output.printFailure).toHaveBeenCalledWith('Step 3 - No step implementation associated to step');
     });
   });
 });
