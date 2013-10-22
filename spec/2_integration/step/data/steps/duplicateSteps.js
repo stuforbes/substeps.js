@@ -1,4 +1,4 @@
-stepDefinitions('Some steps', function(){
+stepImplementations('Some steps', function(){
   console.log('here');
 
   step('This is the first step', function(){});

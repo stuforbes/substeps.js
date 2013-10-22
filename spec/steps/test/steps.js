@@ -1,4 +1,4 @@
-stepDefinitions('Sample step definitions', function(){
+stepImplementations('Sample step implementations', function(){
 
   step('Call an external step with \'([^"]*)\' and value \'([^"]*)\'', function(param, value){
 //    console.log('Invoked step \'Call an external step with \''+param+'\' and value \''+value+'\'');
