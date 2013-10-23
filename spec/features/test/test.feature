@@ -1,3 +1,4 @@
+Tags: tag1
 Feature: Simple feature calling a parameterised substep
 
 Scenario: Simple scenario calling a parameterised substep

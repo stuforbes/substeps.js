@@ -5,7 +5,30 @@ describe('directives', function(){
   var directives;
 
   beforeEach(function(){
-    directives = require('../../../../lib/parser/feature/directives')();
+    directives = require('../../../../lib/parser/feature/directives')(require('underscore'));
+  });
+
+  describe('directiveTag', function(){
+    it('should have a text of "Tags:"', function(){
+      expect(directives.directiveTag().text).toBe('Tags:');
+    });
+
+    it('should not be a step container', function(){
+      expect(directives.directiveTag().stepContainer).toBe(false);
+    });
+
+    it('should split tag text into an array', function(){
+      compareArrays(directives.directiveTag().create('tag1, tag2, tag3').node.tags, ['tag1', 'tag2', 'tag3']);
+      compareArrays(directives.directiveTag().create('tag1 tag2 tag3').node.tags, ['tag1', 'tag2', 'tag3']);
+      compareArrays(directives.directiveTag().create('tag1 tag2, tag3').node.tags, ['tag1', 'tag2', 'tag3']);
+    });
+
+    var compareArrays = function(actual, expected){
+      expect(actual.length).toBe(expected.length);
+      for(var i=0; i<actual.length; i++){
+        expect(actual[i]).toBe(expected[i]);
+      }
+    }
   });
 
   describe('directiveFeature', function(){
@@ -69,12 +92,21 @@ describe('directives', function(){
     });
 
     it('should create a valid scenario node', function(){
-      var scenario = directives.directiveScenario().create('A scenario');
+      var scenario = directives.directiveScenario().create('A scenario', {});
       expect(scenario.type).toBe('scenario');
       expect(scenario.node.text).toBe('A scenario');
       expect(scenario.node.outline).toBe(false);
       expect(scenario.node.steps).toBeDefined();
       expect(scenario.node.steps.length).toBe(0);
+    });
+
+    it('should add all of the parent features tags to a scenario node when it is created', function(){
+      var scenario = directives.directiveScenario().create('A scenario', {tags: ['tag-1', 'tag-2']});
+      expect(scenario.type).toBe('scenario');
+      expect(scenario.node.text).toBe('A scenario');
+      expect(scenario.node.tags.length).toBe(2);
+      expect(scenario.node.tags[0]).toBe('tag-1');
+      expect(scenario.node.tags[1]).toBe('tag-2');
     });
 
     it('should add the scenario to the feature', function(){
@@ -105,12 +137,21 @@ describe('directives', function(){
     });
 
     it('should create a valid scenario outline node', function(){
-      var scenario = directives.directiveScenarioOutline().create('A scenario outline');
+      var scenario = directives.directiveScenarioOutline().create('A scenario outline', {});
       expect(scenario.type).toBe('scenario-outline');
       expect(scenario.node.text).toBe('A scenario outline');
       expect(scenario.node.outline).toBe(true);
       expect(scenario.node.steps).toBeDefined();
       expect(scenario.node.steps.length).toBe(0);
+    });
+
+    it('should add all of the parent features tags to a scenario outline node when it is created', function(){
+      var scenario = directives.directiveScenarioOutline().create('A scenario outline', {tags: ['tag-1', 'tag-2']});
+      expect(scenario.type).toBe('scenario-outline');
+      expect(scenario.node.text).toBe('A scenario outline');
+      expect(scenario.node.tags.length).toBe(2);
+      expect(scenario.node.tags[0]).toBe('tag-1');
+      expect(scenario.node.tags[1]).toBe('tag-2');
     });
 
     it('should add the scenario outline to the feature', function(){
