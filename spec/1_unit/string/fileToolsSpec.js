@@ -1,6 +1,6 @@
 'use strict';
 
-describe('stringToolsSpec', function(){
+describe('fileTools', function(){
 
   var stringTools;
 

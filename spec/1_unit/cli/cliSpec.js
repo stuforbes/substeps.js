@@ -60,4 +60,17 @@ describe('cli', function(){
     expect(process.exit).not.toHaveBeenCalled();
 
   });
+
+  it('should return any supplied tags', function(){
+
+    commander.features = 'features';
+    commander.substeps = 'substeps';
+    commander.steps = 'steps';
+    commander.tags = '"tag-1 tag-2 --unimplemented"';
+
+    var config = cli.configuration();
+    expect(config.tags).toBe('"tag-1 tag-2 --unimplemented"');
+
+    expect(process.exit).not.toHaveBeenCalled();
+  });
 });
