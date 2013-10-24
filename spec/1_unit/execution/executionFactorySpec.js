@@ -16,13 +16,16 @@ describe('executionFactory', function () {
   describe('featureExecutor', function () {
     it('should execute each scenario', function () {
 
+      var tagManager = { isApplicable: jasmine.createSpy() };
+      tagManager.isApplicable.andReturn(true);
+
       var feature = { scenarios: [
         { execute: jasmine.createSpy() },
         {execute: jasmine.createSpy()},
         { execute: jasmine.createSpy() }
       ] };
 
-      executionFactory.featureExecutor(feature)();
+      executionFactory.featureExecutor(feature)(tagManager);
 
       expect(feature.scenarios[0].execute).toHaveBeenCalled();
       expect(feature.scenarios[1].execute).toHaveBeenCalled();
@@ -30,16 +33,54 @@ describe('executionFactory', function () {
     });
 
     it('should call the background executor once for each scenario execution', function () {
+
+      var tagManager = { isApplicable: jasmine.createSpy() };
+      tagManager.isApplicable.andReturn(true);
+
       var feature = { background: {execute: jasmine.createSpy()}, scenarios: [
         { execute: jasmine.createSpy() },
         {execute: jasmine.createSpy()},
         { execute: jasmine.createSpy() }
       ] };
 
-      executionFactory.featureExecutor(feature)();
+      executionFactory.featureExecutor(feature)(tagManager);
 
       expect(feature.background.execute).toHaveBeenCalled();
       expect(feature.background.execute.callCount).toBe(3);
+    });
+
+    it('should not execute a feature if the tags are not applicable for the current execution', function(){
+      var tagManager = { isApplicable: jasmine.createSpy() };
+      tagManager.isApplicable.andReturn(false);
+
+      var feature = { scenarios: [
+        { execute: jasmine.createSpy() },
+        {execute: jasmine.createSpy()},
+        { execute: jasmine.createSpy() }
+      ] };
+
+      executionFactory.featureExecutor(feature)(tagManager);
+
+      expect(feature.scenarios[0].execute).not.toHaveBeenCalled();
+      expect(feature.scenarios[1].execute).not.toHaveBeenCalled();
+    });
+
+    it('should not execute a scenario in a feature if the tags are not applicable for the current execution', function(){
+      var tagManager = { isApplicable: jasmine.createSpy() };
+      tagManager.isApplicable.andCallFake(function(tagList){
+        return tagList[0] == 'feature' || tagList[0] === 'scenario-2';
+      });
+
+      var feature = { tags: ['feature'],
+        scenarios: [
+          { tags: ['scenario-1'], execute: jasmine.createSpy() },
+          {tags: ['scenario-2'], execute: jasmine.createSpy()}
+      ] };
+
+      executionFactory.featureExecutor(feature)(tagManager);
+
+      expect(feature.scenarios[0].execute).not.toHaveBeenCalled();
+      expect(feature.scenarios[1].execute).toHaveBeenCalled();
     });
   });
 
