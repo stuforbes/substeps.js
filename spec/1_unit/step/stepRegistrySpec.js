@@ -80,4 +80,48 @@ describe('stepRegistry', function(){
 
     expect(located).toBeUndefined();
   });
+
+  it('should register all processors, ready for execution', function(){
+    var processors = {beforeAllFeatures: [jasmine.createSpy(), jasmine.createSpy()], beforeEveryScenario: [jasmine.createSpy(), jasmine.createSpy()], afterEveryFeature: [jasmine.createSpy(), jasmine.createSpy()]};
+
+    stepRegistry.registerAllProcessors(processors);
+
+    stepRegistry.fireProcessEvent('beforeAllFeatures');
+    expect(processors.beforeAllFeatures[0]).toHaveBeenCalled();
+    expect(processors.beforeAllFeatures[1]).toHaveBeenCalled();
+
+    stepRegistry.fireProcessEvent('beforeEveryScenario');
+    expect(processors.beforeEveryScenario[0]).toHaveBeenCalled();
+    expect(processors.beforeEveryScenario[1]).toHaveBeenCalled();
+
+    stepRegistry.fireProcessEvent('afterEveryFeature');
+    expect(processors.afterEveryFeature[0]).toHaveBeenCalled();
+    expect(processors.afterEveryFeature[1]).toHaveBeenCalled();
+  });
+
+  it('should update the processor set when new ones are registered, not overwrite', function(){
+    var processors = {beforeEveryFeature: [jasmine.createSpy(), jasmine.createSpy()], afterEveryScenario: [jasmine.createSpy(), jasmine.createSpy()], afterAllFeatures: [jasmine.createSpy(), jasmine.createSpy()]};
+    stepRegistry.registerAllProcessors(processors);
+
+    var newProcessors = {beforeEveryFeature: [jasmine.createSpy(), jasmine.createSpy()], afterEveryScenario: [jasmine.createSpy(), jasmine.createSpy()], afterAllFeatures: [jasmine.createSpy(), jasmine.createSpy()]};
+    stepRegistry.registerAllProcessors(newProcessors);
+
+    stepRegistry.fireProcessEvent('beforeEveryFeature');
+    expect(processors.beforeEveryFeature[0]).toHaveBeenCalled();
+    expect(processors.beforeEveryFeature[1]).toHaveBeenCalled();
+    expect(newProcessors.beforeEveryFeature[0]).toHaveBeenCalled();
+    expect(newProcessors.beforeEveryFeature[1]).toHaveBeenCalled();
+
+    stepRegistry.fireProcessEvent('afterEveryScenario');
+    expect(processors.afterEveryScenario[0]).toHaveBeenCalled();
+    expect(processors.afterEveryScenario[1]).toHaveBeenCalled();
+    expect(newProcessors.afterEveryScenario[0]).toHaveBeenCalled();
+    expect(newProcessors.afterEveryScenario[1]).toHaveBeenCalled();
+
+    stepRegistry.fireProcessEvent('afterAllFeatures');
+    expect(processors.afterAllFeatures[0]).toHaveBeenCalled();
+    expect(processors.afterAllFeatures[1]).toHaveBeenCalled();
+    expect(newProcessors.afterAllFeatures[0]).toHaveBeenCalled();
+    expect(newProcessors.afterAllFeatures[1]).toHaveBeenCalled();
+  });
 });
