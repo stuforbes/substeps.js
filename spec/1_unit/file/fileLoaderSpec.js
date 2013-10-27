@@ -18,7 +18,7 @@ describe('fileLoader', function(){
     async.toArray.andReturn(async);
 
 
-    fileLoader = require('../../../lib/file/fileLoader')(async, fs);
+    fileLoader = require('../../../lib/file/fileLoader')(async, fs, require('wait.for'));
   });
 
   it('should use async to locate all feature files recursively', function(){
@@ -37,7 +37,6 @@ describe('fileLoader', function(){
     expect(async.stat).toHaveBeenCalled();
     expect(async.filter).toHaveBeenCalled();
     expect(async.sort).toHaveBeenCalled();
-    expect(async.toArray).toHaveBeenCalledWith(onComplete);
   });
 
   it('should use async to locate a single feature file', function(){
@@ -55,7 +54,6 @@ describe('fileLoader', function(){
     expect(async.files).toHaveBeenCalledWith(['directory']);
     expect(async.stat).toHaveBeenCalled();
     expect(async.filter).toHaveBeenCalled();
-    expect(async.toArray).toHaveBeenCalledWith(onComplete);
   });
 
   it('should filter out directories', function(){
