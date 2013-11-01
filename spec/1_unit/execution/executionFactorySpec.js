@@ -19,13 +19,16 @@ describe('executionFactory', function () {
       var tagManager = { isApplicable: jasmine.createSpy() };
       tagManager.isApplicable.andReturn(true);
 
+      var beforeScenarioHook = jasmine.createSpy();
+      beforeScenarioHook.andCallFake(function(callback){ callback(); });
+
       var feature = { scenarios: [
         { execute: jasmine.createSpy() },
         {execute: jasmine.createSpy()},
         { execute: jasmine.createSpy() }
       ] };
 
-      executionFactory.featureExecutor(feature)(tagManager, jasmine.createSpy(), jasmine.createSpy());
+      executionFactory.featureExecutor(feature)(tagManager, beforeScenarioHook, jasmine.createSpy());
 
       expect(feature.scenarios[0].execute).toHaveBeenCalled();
       expect(feature.scenarios[1].execute).toHaveBeenCalled();
@@ -37,13 +40,16 @@ describe('executionFactory', function () {
       var tagManager = { isApplicable: jasmine.createSpy() };
       tagManager.isApplicable.andReturn(true);
 
+      var beforeScenarioHook = jasmine.createSpy();
+      beforeScenarioHook.andCallFake(function(callback){ callback(); });
+
       var feature = { background: {execute: jasmine.createSpy()}, scenarios: [
         { execute: jasmine.createSpy() },
         {execute: jasmine.createSpy()},
         { execute: jasmine.createSpy() }
       ] };
 
-      executionFactory.featureExecutor(feature)(tagManager, jasmine.createSpy(), jasmine.createSpy());
+      executionFactory.featureExecutor(feature)(tagManager, beforeScenarioHook, jasmine.createSpy());
 
       expect(feature.background.execute).toHaveBeenCalled();
       expect(feature.background.execute.callCount).toBe(3);
@@ -53,13 +59,16 @@ describe('executionFactory', function () {
       var tagManager = { isApplicable: jasmine.createSpy() };
       tagManager.isApplicable.andReturn(false);
 
+      var beforeScenarioHook = jasmine.createSpy();
+      beforeScenarioHook.andCallFake(function(callback){ callback(); });
+
       var feature = { scenarios: [
         { execute: jasmine.createSpy() },
         {execute: jasmine.createSpy()},
         { execute: jasmine.createSpy() }
       ] };
 
-      executionFactory.featureExecutor(feature)(tagManager, jasmine.createSpy(), jasmine.createSpy());
+      executionFactory.featureExecutor(feature)(tagManager, beforeScenarioHook, jasmine.createSpy());
 
       expect(feature.scenarios[0].execute).not.toHaveBeenCalled();
       expect(feature.scenarios[1].execute).not.toHaveBeenCalled();
@@ -71,13 +80,16 @@ describe('executionFactory', function () {
         return tagList[0] == 'feature' || tagList[0] === 'scenario-2';
       });
 
+      var beforeScenarioHook = jasmine.createSpy();
+      beforeScenarioHook.andCallFake(function(callback){ callback(); });
+
       var feature = { tags: ['feature'],
         scenarios: [
           { tags: ['scenario-1'], execute: jasmine.createSpy() },
           {tags: ['scenario-2'], execute: jasmine.createSpy()}
       ] };
 
-      executionFactory.featureExecutor(feature)(tagManager, jasmine.createSpy(), jasmine.createSpy());
+      executionFactory.featureExecutor(feature)(tagManager, beforeScenarioHook, jasmine.createSpy());
 
       expect(feature.scenarios[0].execute).not.toHaveBeenCalled();
       expect(feature.scenarios[1].execute).toHaveBeenCalled();
@@ -95,6 +107,8 @@ describe('executionFactory', function () {
         ] };
 
       var beforeScenarioHook = jasmine.createSpy();
+      beforeScenarioHook.andCallFake(function(callback){ callback(); });
+
       var afterScenarioHook = jasmine.createSpy();
 
       executionFactory.featureExecutor(feature)(tagManager, beforeScenarioHook, afterScenarioHook);

@@ -1,43 +1,43 @@
 stepImplementations('Some processors to be tested', function(){
-  beforeAllFeatures(function(){
+  beforeAllFeatures(function(callback){
     // this will be executed once, at the start of the process
   });
 
-  beforeEveryFeature(function(){
+  beforeEveryFeature(function(callback){
     // this will be executed at the start of every feature
   });
-  beforeEveryFeature(function(){
+  beforeEveryFeature(function(callback){
     // this will be executed at the start of every feature
   });
 
-  beforeEveryScenario(function(){
+  beforeEveryScenario(function(callback){
     // this will be executed at the start of every scenario
   });
-  beforeEveryScenario(function(){
+  beforeEveryScenario(function(callback){
     // this will be executed at the start of every scenario
   });
-  beforeEveryScenario(function(){
+  beforeEveryScenario(function(callback){
     // this will be executed at the start of every scenario
   });
 
-  afterAllFeatures(function(){
+  afterAllFeatures(function(callback){
     // this will be executed once, at the end of the process
   });
 
-  afterEveryFeature(function(){
+  afterEveryFeature(function(callback){
     // this will be executed at the end of every feature
   });
-  afterEveryFeature(function(){
+  afterEveryFeature(function(callback){
     // this will be executed at the end of every feature
   });
 
-  afterEveryScenario(function(){
+  afterEveryScenario(function(callback){
     // this will be executed at the end of every scenario
   });
-  afterEveryScenario(function(){
+  afterEveryScenario(function(callback){
     // this will be executed at the end of every scenario
   });
-  afterEveryScenario(function(){
+  afterEveryScenario(function(callback){
     // this will be executed at the end of every scenario
   });
 });
