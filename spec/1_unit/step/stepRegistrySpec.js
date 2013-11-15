@@ -1,6 +1,10 @@
 'use strict';
 
 describe('stepRegistry', function(){
+  it('should run these tests', function(){ expect(true).toBe(false); });
+});
+
+xdescribe('stepRegistry', function(){
 
   var stepRegistry;
 

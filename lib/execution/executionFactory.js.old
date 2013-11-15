@@ -1,37 +1,99 @@
-module.exports = function ExecutionFactory(output, _){
+module.exports = function ExecutionFactory(callbackIterator, parameterExtractor, stepParameterLocator, output, _){
 
-  var definitionPattern = function(definition){
-    return new RegExp(definition.pattern, 'g');
-  };
-
-  var definitionMatching = function(step, definitions) {
-    var definition = _.find(definitions, function (definition) { return definitionPattern(definition).test(step); });
-    if(definition){
-      var matches = definitionPattern(definition).exec(step);
-      var numDefinitionParameters = definition.parameters ? definition.parameters.length : 0;
-      if(matches.length != (numDefinitionParameters + 1)){
-        console.log('Error - expected '+numDefinitionParameters+' parameters, but found '+(matches.length-1))
-      } else {
-        var paramsAndValues = _.reduce(matches.slice(1), function(result, match, index){
-          result.push({name: definition.parameters[index], value: match});
-          return result;
-        }, []);
-        return {definition: definition, params: paramsAndValues};
+  var updateStepWithParentParams = function(step, parentParams){
+    step.processedText = function(){
+      if(parentParams && parentParams.length > 0){
+        var text = step.text;
+        parentParams.forEach(function(parentParam){
+          for(key in parentParam){
+            text = text.replace('<'+key+'>', parentParam[key]);
+          }
+        });
+        return text;
+      } else{
+        return step.text;
       }
     }
-    return undefined;
+  };
+
+  var executeSubstepTarget = function(step){
+    return function(parentParams, callback){
+      updateStepWithParentParams(step, parentParams);
+      output.printSuccess(step.processedText());
+      if(step.definition && step.definition.steps){
+        var params = parameterExtractor.extractFor(step, step.definition);
+        if(params){
+          output.descend();
+
+          callbackIterator.iterateOver(step.definition.steps, function(substep, callback){
+            var substepParams = stepParameterLocator.locateForStep(substep, params);
+            substep.execute(substepParams, callback);
+          });
+          output.ascend();
+        } else {
+          output.printFailure(step.text+' - Could not process params when calling substep '+step.definition.text);
+        }
+      } else {
+        output.printFailure(step.text+' - No definition associated to step');
+      }
+      callback();
+    };
+  };
+
+  var executeStepImplTarget = function(step){
+    return function(parentParams){
+      updateStepWithParentParams(step, parentParams);
+
+      if(step.stepImpl){
+        var matches = new RegExp(step.stepImpl.pattern, 'g').exec(step.processedText());
+
+        if(matches.length < 1){
+          output.printFailure('Could not process step '+step.text+' - step was not correctly formed');
+        } else{
+          var functionArguments = matches.slice(1);
+
+          try{
+            step.stepImpl.execute.apply(this, functionArguments);
+            output.printSuccess(step.text);
+          } catch(e){
+            output.printFailure(step.text);
+//            console.log(e);
+          }
+
+        }
+      } else{
+        output.printFailure(step.text+' - No step implementation associated to step')
+      }
+    };
+  };
+
+  var callStepChain = function(idx, steps, paramsForStepFn){
+    if(steps && idx < steps.length){
+      steps[idx].execute(paramsForStepFn(steps[idx]), function(){
+        callStepChain(idx+1, steps, paramsForStepFn);
+      });
+    }
   };
 
   return {
 
     featureExecutor: function(feature){
-      return function(){
-        feature.scenarios.forEach(function(scenario){
-          if(feature.background){
-            feature.background.executor();
-          }
-          scenario.executor();
-        })
+      return function(tagManager, beforeScenarioHook, afterScenarioHook){
+        if(tagManager.isApplicable(feature.tags)){
+          feature.scenarios.forEach(function(scenario){
+            if(tagManager.isApplicable(scenario.tags)){
+              if(feature.background){
+                feature.background.execute();
+              }
+              beforeScenarioHook(function(error){
+                if(error) throw new Error('Could not complete beforeScenarioHook '+error);
+
+                scenario.execute();
+                afterScenarioHook();
+              });
+            }
+          });
+        }
       }
     },
 
@@ -39,26 +101,25 @@ module.exports = function ExecutionFactory(output, _){
       return function(params){
         output.printSuccess((stepContainer.prefix ? stepContainer.prefix : '') +' ' +stepContainer.text);
         output.descend();
-        stepContainer.steps.forEach(function(step){
-          step.executor();
-        });
+
+        callStepChain(0, stepContainer.steps, function(step){ return {}; });
+
         output.ascend();
       };
     },
 
-    stepExecutor: function(step, definitions){
-      var matchingDefinitionAndParams = definitionMatching(step.text, definitions);
-      if(matchingDefinitionAndParams){
-        step.steps = matchingDefinitionAndParams.definition.steps;
-        step.executor = function(){
-          output.printSuccess(step.text);
-          step.steps.forEach(function(innerStep){
-            innerStep.executor(matchingDefinitionAndParams.params);
-          });
+    stepExecutor: function(step){
+      if('substeps-target' === step.status){
+        return executeSubstepTarget(step);
+      } else if('step-impl-target' === step.status){
+        return executeStepImplTarget(step);
+      } else if('missing-target' === step.status){
+        return  function(){
+          output.printMissingDefinition(step.text);
         }
       } else{
-        step.executor = function(){
-          output.printMissingDefinition(step.text);
+        return function(){
+          output.printFailure('Unknown status ('+step.status+') for step '+step.text);
         }
       }
     }

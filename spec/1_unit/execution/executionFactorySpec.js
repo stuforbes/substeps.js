@@ -2,18 +2,322 @@
 
 describe('executionFactory', function () {
 
-  var _;
+  var stepRegistry;
+  var tagManager;
+  var callbackIterator;
+  var parameterExtractor;
+  var stepParameterLocator;
   var output;
+  var _;
+
+  var feature1;
+  var feature2;
+  var feature3;
 
   var executionFactory;
 
   beforeEach(function () {
     _ = require('underscore');
+    stepRegistry = jasmine.createSpyObj('stepRegistry', ['fireProcessEvent']);
+    tagManager = jasmine.createSpyObj('tagManager', ['isApplicable']);
+    callbackIterator = jasmine.createSpyObj('callbackIterator', ['iterateOver']);
+    parameterExtractor = jasmine.createSpyObj('parameterExtractor', ['extractFor']);
+    stepParameterLocator = jasmine.createSpyObj('stepParameterLocator', ['locateForStep']);
     output = jasmine.createSpyObj('output', ['ascend', 'descend', 'printSuccess', 'printMissingDefinition', 'printFailure']);
-    executionFactory = require('../../../lib/execution/executionFactory')(output, _);
+
+    executionFactory = require('../../../lib/execution/executionFactory')(stepRegistry, callbackIterator, parameterExtractor, stepParameterLocator, output, _);
   });
 
-  describe('featureExecutor', function () {
+  beforeEach(function(){
+    feature1 = {tags: ['feature-1'], execute: jasmine.createSpy(), scenarios: [{execute: jasmine.createSpy()}, {tags: ['scenario-2'], execute: jasmine.createSpy()}, {text: 'A scenario', execute: jasmine.createSpy(), steps: [{execute: jasmine.createSpy()}, {execute: jasmine.createSpy()}]}]};
+    feature2 = {execute: jasmine.createSpy(), background: {execute: jasmine.createSpy(), steps: [{execute: jasmine.createSpy()}, {execute: jasmine.createSpy()}]}, scenarios: [{execute: jasmine.createSpy()}, {execute: jasmine.createSpy()}]};
+    feature3 = {execute: jasmine.createSpy()};
+
+    // by default, the tagManager will approve features/scenarios
+    tagManager.isApplicable.andReturn(true);
+  });
+
+  describe('featureSetExecutor', function(){
+    it('should execute each feature', function(){
+
+      prepareProcessor([withTypeAndCallbackResult('beforeAllFeatures', null), withTypeAndCallbackResult('beforeEveryFeature', null)]);
+
+      executionFactory.featureSetExecutor([feature1, feature2, feature3])(tagManager);
+
+      expect(stepRegistry.fireProcessEvent).toHaveBeenCalledWith('beforeAllFeatures', {}, jasmine.any(Function));
+
+      expect(feature1.execute).toHaveBeenCalledWith(tagManager);
+      expect(feature2.execute).toHaveBeenCalledWith(tagManager);
+      expect(feature3.execute).toHaveBeenCalledWith(tagManager);
+    });
+
+    it('should not execute a feature if the tag manager reports it as not applicable', function(){
+
+      prepareProcessor([withTypeAndCallbackResult('beforeAllFeatures', null), withTypeAndCallbackResult('beforeEveryFeature', null)]);
+
+      tagManager.isApplicable.andCallFake(function(tags){
+        return !(tags && tags.length === 1 && tags[0] === 'feature-1');
+      });
+
+      executionFactory.featureSetExecutor([feature1, feature2, feature3])(tagManager);
+
+      expect(feature1.execute).not.toHaveBeenCalled();
+      expect(feature2.execute).toHaveBeenCalled();
+      expect(feature3.execute).toHaveBeenCalled();
+    });
+
+    it('should execute the beforeAllFeatures processors before processing any features', function(){
+
+      prepareProcessor([withTypeAndCallbackResult('beforeAllFeatures', null)]);
+
+      executionFactory.featureSetExecutor([feature1, feature2, feature3])(tagManager);
+
+      expect(stepRegistry.fireProcessEvent).toHaveBeenCalledWith('beforeAllFeatures', {}, jasmine.any(Function));
+    });
+
+    it('should not execute any features if a beforeAllFeatures processor fails', function(){
+
+      prepareProcessor([withTypeAndCallbackResult('beforeAllFeatures', 'some error')]);
+
+      executionFactory.featureSetExecutor([feature1, feature2, feature3])(tagManager);
+
+      expect(stepRegistry.fireProcessEvent).toHaveBeenCalledWith('beforeAllFeatures', {}, jasmine.any(Function));
+
+      expect(feature1.execute).not.toHaveBeenCalled();
+      expect(feature2.execute).not.toHaveBeenCalled();
+      expect(feature3.execute).not.toHaveBeenCalled();
+    });
+
+    it('should execute the afterAllFeatures processors after processing features', function(){
+
+      prepareProcessor([withTypeAndCallbackResult('beforeAllFeatures', null), withTypeAndCallbackResult('beforeEveryFeature', null)]);
+
+      executionFactory.featureSetExecutor([feature1, feature2, feature3])(tagManager);
+
+      expect(stepRegistry.fireProcessEvent).toHaveBeenCalledWith('afterAllFeatures', {});
+    });
+
+    it('should execute the beforeEveryFeature processors before processing a feature', function(){
+
+      var beforeEveryFeatureExecutionCount = 0;
+
+      var beforeAllFeatures = {processType: 'beforeAllFeatures', callbackHandler: function(callback){ callback(null); }};
+      var beforeEveryFeature = {processType: 'beforeEveryFeature', callbackHandler: function(callback){
+        beforeEveryFeatureExecutionCount++;
+        callback(null);
+      }};
+      prepareProcessor([beforeAllFeatures, beforeEveryFeature]);
+
+      executionFactory.featureSetExecutor([feature1, feature2, feature3])(tagManager);
+
+      expect(stepRegistry.fireProcessEvent).toHaveBeenCalledWith('beforeEveryFeature', {}, jasmine.any(Function));
+      expect(beforeEveryFeatureExecutionCount).toBe(3);
+      expect(feature1.execute).toHaveBeenCalledWith(tagManager);
+      expect(feature2.execute).toHaveBeenCalledWith(tagManager);
+      expect(feature3.execute).toHaveBeenCalledWith(tagManager);
+    });
+
+    it('should not execute a feature if one of its beforeEveryFeature processors fails', function(){
+      var beforeEveryFeatureExecutionCount = 0;
+
+      var beforeAllFeatures = {processType: 'beforeAllFeatures', callbackHandler: function(callback){ callback(null); }};
+      var beforeEveryFeature = {processType: 'beforeEveryFeature', callbackHandler: function(callback){
+        beforeEveryFeatureExecutionCount++;
+        if(beforeEveryFeatureExecutionCount === 2){
+          callback('an error occurred');
+        } else{
+          callback(null);
+        }
+      }};
+      prepareProcessor([beforeAllFeatures, beforeEveryFeature]);
+
+      executionFactory.featureSetExecutor([feature1, feature2, feature3])(tagManager);
+
+      expect(stepRegistry.fireProcessEvent).toHaveBeenCalledWith('beforeEveryFeature', {}, jasmine.any(Function));
+      expect(beforeEveryFeatureExecutionCount).toBe(3);
+      expect(feature1.execute).toHaveBeenCalled();
+      expect(feature2.execute).not.toHaveBeenCalled();
+      expect(feature3.execute).toHaveBeenCalled();
+    });
+
+    it('should execute the afterEveryFeature processors after processing a feature', function(){
+
+      var afterEveryFeatureExecutionCount = 0;
+
+      var beforeAllFeatures = withTypeAndCallbackResult('beforeAllFeatures', null);
+      var beforeEveryFeature = withTypeAndCallbackResult('beforeEveryFeature', null);
+      var afterEveryFeature = {processType: 'afterEveryFeature', callbackHandler: function(callback){ afterEveryFeatureExecutionCount++; }};
+      prepareProcessor([beforeAllFeatures, beforeEveryFeature, afterEveryFeature]);
+
+      executionFactory.featureSetExecutor([feature1, feature2, feature3])(tagManager);
+
+      expect(stepRegistry.fireProcessEvent).toHaveBeenCalledWith('afterEveryFeature', {});
+      expect(afterEveryFeatureExecutionCount).toBe(3);
+    });
+  });
+
+  describe('featureExecutor', function(){
+    it('should execute each scenario', function(){
+
+      prepareProcessor([withTypeAndCallbackResult('beforeEveryScenario', null)]);
+
+      executionFactory.featureExecutor(feature1)(tagManager);
+
+      expect(feature1.scenarios[0].execute).toHaveBeenCalled();
+      expect(feature1.scenarios[1].execute).toHaveBeenCalled();
+      expect(feature1.scenarios[2].execute).toHaveBeenCalled();
+    });
+
+    it('should not execute a scenario if the tag manager reports it is not applicable', function(){
+
+      prepareProcessor([withTypeAndCallbackResult('beforeEveryScenario', null)]);
+
+      tagManager.isApplicable.andCallFake(function(tags){
+        return !(tags && tags.length === 1 && tags[0] === 'scenario-2');
+      });
+
+      executionFactory.featureExecutor(feature1)(tagManager);
+
+      expect(feature1.scenarios[0].execute).toHaveBeenCalled();
+      expect(feature1.scenarios[1].execute).not.toHaveBeenCalled();
+    });
+
+    it('should execute the background before each scenario', function(){
+
+      prepareProcessor([withTypeAndCallbackResult('beforeEveryScenario', null)]);
+
+      executionFactory.featureExecutor(feature2)(tagManager);
+
+      expect(feature2.background.execute).toHaveBeenCalled();
+      expect(feature2.background.execute.callCount).toBe(2);
+    });
+
+    it('should execute the beforeEveryScenario processors before each scenario', function(){
+
+      var beforeEveryScenarioCallCount = 0;
+      prepareProcessor([{processType: 'beforeEveryScenario', callbackHandler: function(callback) { beforeEveryScenarioCallCount++; callback(null); }}]);
+
+      executionFactory.featureExecutor(feature2)(tagManager);
+
+      expect(stepRegistry.fireProcessEvent).toHaveBeenCalledWith('beforeEveryScenario',{}, jasmine.any(Function));
+      expect(beforeEveryScenarioCallCount).toBe(2);
+    });
+
+    it('should not execute the scenarios if a beforeEveryScenario processor fails', function(){
+
+      prepareProcessor([withTypeAndCallbackResult('beforeEveryScenario', 'an-error')]);
+
+      executionFactory.featureExecutor(feature2)(tagManager);
+
+      expect(feature2.background.execute).not.toHaveBeenCalled();
+      expect(feature2.scenarios[0].execute).not.toHaveBeenCalled();
+      expect(feature2.scenarios[1].execute).not.toHaveBeenCalled();
+    });
+
+    it('should execute the afterEveryScenario processors after each scenario', function(){
+
+      var afterEveryScenarioCallCount = 0;
+      prepareProcessor([withTypeAndCallbackResult('beforeEveryScenario', null), {processType: 'afterEveryScenario', callbackHandler: function() { afterEveryScenarioCallCount++; }}]);
+
+      executionFactory.featureExecutor(feature2)(tagManager);
+
+      expect(stepRegistry.fireProcessEvent).toHaveBeenCalledWith('afterEveryScenario',{});
+      expect(afterEveryScenarioCallCount).toBe(2);
+    });
+  });
+
+  describe('backgroundExecutor', function(){
+    it('should print the text \'Background:\' to the output, then descend to the next level', function(){
+
+      executionFactory.backgroundExecutor(feature2.background)();
+
+      expect(output.printSuccess).toHaveBeenCalledWith('Background:');
+      expect(output.descend).toHaveBeenCalled();
+      expect(output.ascend).toHaveBeenCalled();
+    });
+
+    it('should execute each step in the background through an iterated callback', function(){
+      executionFactory.backgroundExecutor(feature2.background)();
+
+      expect(callbackIterator.iterateOver).toHaveBeenCalledWith(feature2.background.steps, jasmine.any(Function));
+    });
+
+    it('should provide a callback to the callback iterator that will execute a step', function(){
+
+      var iteratedCallback = null;
+      callbackIterator.iterateOver.andCallFake(function(arr, callback){ iteratedCallback = callback; });
+
+      executionFactory.backgroundExecutor(feature2.background)();
+
+      expect(iteratedCallback).not.toBe(null);
+
+      var step = {execute: jasmine.createSpy()};
+
+      iteratedCallback(step);
+
+      expect(step.execute).toHaveBeenCalled();
+
+    });
+  });
+
+  describe('scenarioExecutor', function(){
+
+    it('should print the text \'Scenario:\', plus the scenario text to the output, then descend to the next level', function(){
+
+      executionFactory.scenarioExecutor(feature1.scenarios[2])();
+
+      expect(output.printSuccess).toHaveBeenCalledWith('Scenario: A scenario');
+      expect(output.descend).toHaveBeenCalled();
+      expect(output.ascend).toHaveBeenCalled();
+    });
+
+    it('should execute each step in the scenario through an iterated callback', function(){
+      executionFactory.scenarioExecutor(feature1.scenarios[2])();
+
+      expect(callbackIterator.iterateOver).toHaveBeenCalledWith(feature1.scenarios[2].steps, jasmine.any(Function));
+    });
+
+    it('should provide a callback to the callback iterator that will execute a step', function(){
+
+      var iteratedCallback = null;
+      callbackIterator.iterateOver.andCallFake(function(arr, callback){ iteratedCallback = callback; });
+
+      executionFactory.scenarioExecutor(feature1.scenarios[2])(tagManager);
+
+      expect(iteratedCallback).not.toBe(null);
+
+      var step = {execute: jasmine.createSpy()};
+
+      iteratedCallback(step);
+
+      expect(step.execute).toHaveBeenCalled();
+    });
+  });
+
+  describe('substepExecutor', function(){
+
+  });
+
+  describe('stepImplExecutor', function(){
+
+  });
+
+  var prepareProcessor = function(processTypesAndCallbackHandlers){
+    stepRegistry.fireProcessEvent.andCallFake(function(type, executionState, callback){
+      processTypesAndCallbackHandlers.forEach(function(processTypeAndCallbackHandler){
+        if(processTypeAndCallbackHandler.processType === type){
+          processTypeAndCallbackHandler.callbackHandler(callback);
+        }
+      });
+    });
+  };
+
+  var withTypeAndCallbackResult = function(type, result){
+    return {processType: type, callbackHandler: function(callback){ callback(result); }};
+  };
+
+
+  /*describe('featureExecutor', function () {
     it('should execute each scenario', function () {
 
       var tagManager = { isApplicable: jasmine.createSpy() };
@@ -251,5 +555,5 @@ describe('executionFactory', function () {
 
       expect(output.printFailure).toHaveBeenCalledWith('Step 3 - No step implementation associated to step');
     });
-  });
+  });*/
 });
