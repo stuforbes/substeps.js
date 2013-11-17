@@ -295,7 +295,130 @@ describe('executionFactory', function () {
   });
 
   describe('substepExecutor', function(){
+    it('should print the substep text to the output, and descend to the next level', function(){
 
+      executionFactory.substepExecutor({text: 'A substep', definition: {steps: []}})();
+
+      expect(output.printSuccess).toHaveBeenCalledWith('A substep');
+      expect(output.descend).toHaveBeenCalled();
+      expect(output.ascend).toHaveBeenCalled();
+    });
+
+    it('should call the execute method of each child step', function(){
+
+      var iteratedCallback = null;
+      callbackIterator.iterateOver.andCallFake(function(arr, callback){ iteratedCallback = callback; });
+
+      executionFactory.substepExecutor({text: 'A substep', definition: {steps: []}})();
+
+      expect(iteratedCallback).not.toBe(null);
+
+      var step = {execute: jasmine.createSpy()};
+
+      iteratedCallback(step);
+
+      expect(step.execute).toHaveBeenCalled();
+    });
+
+    it('should print a failure message if the step doesn\'t have a corresponding definition', function(){
+      expect(true).toBe(false);
+
+    });
+
+      /*it('should call the execute methods of all substeps when executing a step with status of substeps-target', function () {
+
+        var step = {text: 'Step 3', status: 'substeps-target', definition: {steps: [{execute: jasmine.createSpy()}, {execute: jasmine.createSpy()}]}};
+
+        executionFactory.stepExecutor(step)();
+
+        expect(output.printSuccess).toHaveBeenCalledWith('Step 3');
+        expect(step.definition.steps[0].execute).toHaveBeenCalled();
+        expect(step.definition.steps[1].execute).toHaveBeenCalled();
+      });
+
+      it('should call the execute method of the step impl when executing a step with status of step-impl-target', function () {
+
+        var step = {text: 'Step 1', status: 'step-impl-target', stepImpl: {execute: jasmine.createSpy()}};
+
+        executionFactory.stepExecutor(step)();
+
+        expect(step.stepImpl.execute).toHaveBeenCalled();
+      });
+
+      it('should output a warning if the step could not be located', function () {
+
+        var step = {text: 'Step 3', status: 'missing-target'};
+
+        executionFactory.stepExecutor(step)();
+
+        expect(output.printMissingDefinition).toHaveBeenCalledWith(step.text);
+      });
+
+      it('should pass parameters through to substeps during execution', function(){
+
+        var substep1 = {text: 'call step with \'<param1>\'', parameters: ['param1'], execute: jasmine.createSpy()};
+        var substep2 = {text: 'call step with \'<param2>\'', parameters: ['param2'], execute: jasmine.createSpy()};
+        var definition = {text: 'Step 3 with \'<param1>\' and \'<param2>\'', parameters: ['param1', 'param2'], pattern: 'Step 3 with \'([^"]*)\' and \'([^"]*)\'', steps: [substep1, substep2]};
+        var step = {text: 'Step 3 with \'First\' and \'Second\'', status: 'substeps-target', definition: definition};
+
+        executionFactory.stepExecutor(step)();
+
+        expect(definition.steps[0].execute).toHaveBeenCalledWith([{param1: 'First'}]);
+        expect(definition.steps[1].execute).toHaveBeenCalledWith([{param2: 'Second'}]);
+      });
+
+      it('should pass parameters through to step impls during execution', function(){
+
+        var stepImpl = {pattern: 'Step 3 with \'([^"]*)\' and \'([^"]*)\'', execute: {apply: jasmine.createSpy()}};
+        var step = {text: 'Step 3 with \'First\' and \'Second\'', status: 'step-impl-target', stepImpl: stepImpl};
+
+        executionFactory.stepExecutor(step)();
+
+        expect(stepImpl.execute.apply).toHaveBeenCalledWith(jasmine.any(Object), ['First', 'Second']);
+      });
+
+      it('should use the parentParams to update a steps processed text', function(){
+
+        var step = {text: 'A step with parameter \'<param>\'', status: 'substeps-target', execute: jasmine.createSpy()};
+
+        executionFactory.stepExecutor(step)([{param: 'A Parameter'}]);
+
+        expect(step.processedText()).toBe('A step with parameter \'A Parameter\'');
+      });
+
+
+      it('should report a problem if the status cannot be determined', function(){
+        var step = {text: 'Step 3', status: 'unknown-target'};
+
+        executionFactory.stepExecutor(step)();
+
+        expect(output.printFailure).toHaveBeenCalledWith('Unknown status (unknown-target) for step Step 3');
+      });
+
+      it('should report a problem if the step has a status of substeps-target but no definition', function(){
+        var step = {text: 'Step 3', status: 'substeps-target'};
+
+        executionFactory.stepExecutor(step)();
+
+        expect(output.printFailure).toHaveBeenCalledWith('Step 3 - No definition associated to step');
+      });
+
+      it('should report a problem if the step has a status of substeps-target but no definition steps', function(){
+        var step = {text: 'Step 3', status: 'substeps-target', definition: {}};
+
+        executionFactory.stepExecutor(step)();
+
+        expect(output.printFailure).toHaveBeenCalledWith('Step 3 - No definition associated to step');
+      });
+
+      it('should report a problem if the step has a status of step-impl-target but no stepImpl', function(){
+        var step = {text: 'Step 3', status: 'step-impl-target'};
+
+        executionFactory.stepExecutor(step)();
+
+        expect(output.printFailure).toHaveBeenCalledWith('Step 3 - No step implementation associated to step');
+      });
+    });*/
   });
 
   describe('stepImplExecutor', function(){
@@ -317,113 +440,7 @@ describe('executionFactory', function () {
   };
 
 
-  /*describe('featureExecutor', function () {
-    it('should execute each scenario', function () {
-
-      var tagManager = { isApplicable: jasmine.createSpy() };
-      tagManager.isApplicable.andReturn(true);
-
-      var beforeScenarioHook = jasmine.createSpy();
-      beforeScenarioHook.andCallFake(function(callback){ callback(); });
-
-      var feature = { scenarios: [
-        { execute: jasmine.createSpy() },
-        {execute: jasmine.createSpy()},
-        { execute: jasmine.createSpy() }
-      ] };
-
-      executionFactory.featureExecutor(feature)(tagManager, beforeScenarioHook, jasmine.createSpy());
-
-      expect(feature.scenarios[0].execute).toHaveBeenCalled();
-      expect(feature.scenarios[1].execute).toHaveBeenCalled();
-      expect(feature.scenarios[2].execute).toHaveBeenCalled();
-    });
-
-    it('should call the background executor once for each scenario execution', function () {
-
-      var tagManager = { isApplicable: jasmine.createSpy() };
-      tagManager.isApplicable.andReturn(true);
-
-      var beforeScenarioHook = jasmine.createSpy();
-      beforeScenarioHook.andCallFake(function(callback){ callback(); });
-
-      var feature = { background: {execute: jasmine.createSpy()}, scenarios: [
-        { execute: jasmine.createSpy() },
-        {execute: jasmine.createSpy()},
-        { execute: jasmine.createSpy() }
-      ] };
-
-      executionFactory.featureExecutor(feature)(tagManager, beforeScenarioHook, jasmine.createSpy());
-
-      expect(feature.background.execute).toHaveBeenCalled();
-      expect(feature.background.execute.callCount).toBe(3);
-    });
-
-    it('should not execute a feature if the tags are not applicable for the current execution', function(){
-      var tagManager = { isApplicable: jasmine.createSpy() };
-      tagManager.isApplicable.andReturn(false);
-
-      var beforeScenarioHook = jasmine.createSpy();
-      beforeScenarioHook.andCallFake(function(callback){ callback(); });
-
-      var feature = { scenarios: [
-        { execute: jasmine.createSpy() },
-        {execute: jasmine.createSpy()},
-        { execute: jasmine.createSpy() }
-      ] };
-
-      executionFactory.featureExecutor(feature)(tagManager, beforeScenarioHook, jasmine.createSpy());
-
-      expect(feature.scenarios[0].execute).not.toHaveBeenCalled();
-      expect(feature.scenarios[1].execute).not.toHaveBeenCalled();
-    });
-
-    it('should not execute a scenario in a feature if the tags are not applicable for the current execution', function(){
-      var tagManager = { isApplicable: jasmine.createSpy() };
-      tagManager.isApplicable.andCallFake(function(tagList){
-        return tagList[0] == 'feature' || tagList[0] === 'scenario-2';
-      });
-
-      var beforeScenarioHook = jasmine.createSpy();
-      beforeScenarioHook.andCallFake(function(callback){ callback(); });
-
-      var feature = { tags: ['feature'],
-        scenarios: [
-          { tags: ['scenario-1'], execute: jasmine.createSpy() },
-          {tags: ['scenario-2'], execute: jasmine.createSpy()}
-      ] };
-
-      executionFactory.featureExecutor(feature)(tagManager, beforeScenarioHook, jasmine.createSpy());
-
-      expect(feature.scenarios[0].execute).not.toHaveBeenCalled();
-      expect(feature.scenarios[1].execute).toHaveBeenCalled();
-    });
-
-    it('should execute the before and after scenario hooks for each scenaio in a feature', function(){
-      var tagManager = { isApplicable: jasmine.createSpy() };
-      tagManager.isApplicable.andReturn(true);
-
-      var feature = {
-        scenarios: [
-          { execute: jasmine.createSpy() },
-          { execute: jasmine.createSpy() },
-          { execute: jasmine.createSpy() }
-        ] };
-
-      var beforeScenarioHook = jasmine.createSpy();
-      beforeScenarioHook.andCallFake(function(callback){ callback(); });
-
-      var afterScenarioHook = jasmine.createSpy();
-
-      executionFactory.featureExecutor(feature)(tagManager, beforeScenarioHook, afterScenarioHook);
-      expect(beforeScenarioHook).toHaveBeenCalled();
-      expect(beforeScenarioHook.callCount).toBe(3);
-      expect(afterScenarioHook).toHaveBeenCalled();
-      expect(afterScenarioHook.callCount).toBe(3);
-    });
-  });
-
-  describe('stepContainerExecutor', function () {
+  /*describe('stepContainerExecutor', function () {
     it('should output the step text, and traverse the hierarchy correctly', function () {
       var stepContainer = {prefix: 'A prefix', text: 'some text', steps: []};
 
