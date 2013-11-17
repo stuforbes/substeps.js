@@ -38,6 +38,7 @@ module.exports = function (grunt) {
       //},
       specNameMatcher: "Spec", // load only specs containing specNameMatcher
       projectRoot: ".",
+      teamcity: grunt.option('ci.build') && grunt.option('ci.build') === true,
       requirejs: false,
       forceExit: true,
       jUnit: {
