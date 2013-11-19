@@ -1,15 +1,13 @@
 'use strict';
 
 describe('stepRegistry', function(){
-  it('should run these tests', function(){ expect(true).toBe(false); });
-});
-
-xdescribe('stepRegistry', function(){
 
   var stepRegistry;
+  var callbackIterator;
 
   beforeEach(function(){
-    stepRegistry = require('../../../lib/step/stepRegistry')(require('underscore'));
+    callbackIterator = jasmine.createSpyObj('callbackIterator', ['iterateOver']);
+    stepRegistry = require('../../../lib/step/stepRegistry')(callbackIterator, require('underscore'));
   });
 
   it('should store definitions which can be looked up via direct text matching', function(){
@@ -90,17 +88,15 @@ xdescribe('stepRegistry', function(){
 
     stepRegistry.registerAllProcessors(processors);
 
-    stepRegistry.fireProcessEvent('beforeAllFeatures');
-    expect(processors.beforeAllFeatures[0]).toHaveBeenCalled();
-    expect(processors.beforeAllFeatures[1]).toHaveBeenCalled();
+    var callback = jasmine.createSpy();
+    stepRegistry.fireProcessEvent('beforeAllFeatures', {}, callback);
+    expect(callbackIterator.iterateOver).toHaveBeenCalledWith(processors.beforeAllFeatures, jasmine.any(Function), callback);
 
-    stepRegistry.fireProcessEvent('beforeEveryScenario');
-    expect(processors.beforeEveryScenario[0]).toHaveBeenCalled();
-    expect(processors.beforeEveryScenario[1]).toHaveBeenCalled();
+    stepRegistry.fireProcessEvent('beforeEveryScenario', {}, callback);
+    expect(callbackIterator.iterateOver).toHaveBeenCalledWith(processors.beforeEveryScenario, jasmine.any(Function), callback);
 
     stepRegistry.fireProcessEvent('afterEveryFeature');
-    expect(processors.afterEveryFeature[0]).toHaveBeenCalled();
-    expect(processors.afterEveryFeature[1]).toHaveBeenCalled();
+    expect(callbackIterator.iterateOver).toHaveBeenCalledWith(processors.afterEveryFeature, jasmine.any(Function), undefined);
   });
 
   it('should update the processor set when new ones are registered, not overwrite', function(){
@@ -110,22 +106,14 @@ xdescribe('stepRegistry', function(){
     var newProcessors = {beforeEveryFeature: [jasmine.createSpy(), jasmine.createSpy()], afterEveryScenario: [jasmine.createSpy(), jasmine.createSpy()], afterAllFeatures: [jasmine.createSpy(), jasmine.createSpy()]};
     stepRegistry.registerAllProcessors(newProcessors);
 
-    stepRegistry.fireProcessEvent('beforeEveryFeature');
-    expect(processors.beforeEveryFeature[0]).toHaveBeenCalled();
-    expect(processors.beforeEveryFeature[1]).toHaveBeenCalled();
-    expect(newProcessors.beforeEveryFeature[0]).toHaveBeenCalled();
-    expect(newProcessors.beforeEveryFeature[1]).toHaveBeenCalled();
+    var callback = jasmine.createSpy();
+    stepRegistry.fireProcessEvent('beforeEveryFeature', {}, callback);
+    expect(callbackIterator.iterateOver).toHaveBeenCalledWith([processors.beforeEveryFeature[0], processors.beforeEveryFeature[1], newProcessors.beforeEveryFeature[0], newProcessors.beforeEveryFeature[1]], jasmine.any(Function), callback);
 
-    stepRegistry.fireProcessEvent('afterEveryScenario');
-    expect(processors.afterEveryScenario[0]).toHaveBeenCalled();
-    expect(processors.afterEveryScenario[1]).toHaveBeenCalled();
-    expect(newProcessors.afterEveryScenario[0]).toHaveBeenCalled();
-    expect(newProcessors.afterEveryScenario[1]).toHaveBeenCalled();
+    stepRegistry.fireProcessEvent('afterEveryScenario', {});
+    expect(callbackIterator.iterateOver).toHaveBeenCalledWith([processors.afterEveryScenario[0], processors.afterEveryScenario[1], newProcessors.afterEveryScenario[0], newProcessors.afterEveryScenario[1]], jasmine.any(Function), undefined);
 
-    stepRegistry.fireProcessEvent('afterAllFeatures');
-    expect(processors.afterAllFeatures[0]).toHaveBeenCalled();
-    expect(processors.afterAllFeatures[1]).toHaveBeenCalled();
-    expect(newProcessors.afterAllFeatures[0]).toHaveBeenCalled();
-    expect(newProcessors.afterAllFeatures[1]).toHaveBeenCalled();
+    stepRegistry.fireProcessEvent('afterAllFeatures', callback);
+    expect(callbackIterator.iterateOver).toHaveBeenCalledWith([processors.afterAllFeatures[0], processors.afterAllFeatures[1], newProcessors.afterAllFeatures[0], newProcessors.afterAllFeatures[1]], jasmine.any(Function), undefined);
   });
 });

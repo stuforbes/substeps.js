@@ -11,7 +11,7 @@ describe('substepsParser integration', function(){
   beforeEach(function(){
     var _ = require('underscore');
     output = require('../../../../lib/cli/consoleoutput')();
-    stepRegistry = require('../../../../lib/step/stepRegistry')(_);
+    stepRegistry = require('../../../../lib/step/stepRegistry')(require('../../../../lib/execution/callbackIterator'), _);
     executionFactory = require('../../../../lib/execution/executionFactory')(output, _);
 
     substepsParser = require('../../../../lib/parser/substeps/substepsParserFactory')(executionFactory, stepRegistry, output);

@@ -21,13 +21,12 @@ xdescribe('featureParser integration', function () {
     output = require('../../../../lib/cli/consoleoutput')();
 
     executionFactory = require('../../../../lib/execution/executionFactory')(output, _);
-    stepRegistry = require('../../../../lib/step/stepRegistry')(_);
+    stepRegistry = require('../../../../lib/step/stepRegistry')(require('../../../../lib/execution/callbackIterator'), _);
     featureParser = require('../../../../lib/parser/feature/featureParserFactory')(executionFactory, stepRegistry, output, _);
   });
 
   beforeEach(function () {
     this.addMatchers(featureMatcher());
-
   });
 
   it('should convert all files to a list of features', function () {
