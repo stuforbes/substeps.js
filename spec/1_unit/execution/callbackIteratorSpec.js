@@ -44,7 +44,7 @@ describe('callbackIterator', function () {
     expect(processor).toHaveBeenCalledWith('item-3', jasmine.any(Function));
   });
 
-  it('should no call the processor for every item in an array if the callback is not invoked', function () {
+  it('should not call the processor for every item in an array if the callback is not invoked', function () {
 
     var arr = ['item-1', 'item-2', 'item-3'];
     var processor = jasmine.createSpy();
@@ -58,5 +58,44 @@ describe('callbackIterator', function () {
     expect(processor.callCount).toBe(2);
     expect(processor).toHaveBeenCalledWith('item-1', jasmine.any(Function));
     expect(processor).toHaveBeenCalledWith('item-2', jasmine.any(Function));
+    expect(processor).not.toHaveBeenCalledWith('item-3', jasmine.any(Function));
   });
+
+  it('should call the optional onComplete callback if it is defined, once all items have been processed', function(){
+
+    var arr = ['item-1', 'item-2', 'item-3'];
+    var processor = jasmine.createSpy();
+    var onComplete = jasmine.createSpy();
+    processor.andCallFake(function(item, callback){
+      callback();
+    });
+
+
+    callbackIterator.iterateOver(arr, processor, onComplete);
+    expect(processor.callCount).toBe(3);
+    expect(processor).toHaveBeenCalledWith('item-1', jasmine.any(Function));
+    expect(processor).toHaveBeenCalledWith('item-2', jasmine.any(Function));
+    expect(processor).toHaveBeenCalledWith('item-3', jasmine.any(Function));
+    expect(onComplete).toHaveBeenCalled();
+  });
+
+  it('should not call the optional onComplete callback if traversal through the array is not completed', function(){
+
+    var arr = ['item-1', 'item-2', 'item-3'];
+    var processor = jasmine.createSpy();
+    var onComplete = jasmine.createSpy();
+    processor.andCallFake(function(item, callback){
+      if(item === 'item-1'){
+        callback();
+      }
+    });
+
+
+    callbackIterator.iterateOver(arr, processor, onComplete);
+    expect(processor.callCount).toBe(2);
+    expect(processor).toHaveBeenCalledWith('item-1', jasmine.any(Function));
+    expect(processor).toHaveBeenCalledWith('item-2', jasmine.any(Function));
+    expect(onComplete).not.toHaveBeenCalled();
+  })
+
 });

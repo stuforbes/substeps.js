@@ -297,7 +297,7 @@ describe('executionFactory', function () {
   describe('substepExecutor', function(){
     it('should print the substep text to the output, and descend to the next level', function(){
 
-      executionFactory.substepExecutor({text: 'A substep', definition: {steps: []}})();
+      executionFactory.substepExecutor({text: 'A substep', definition: {steps: []}})([], jasmine.createSpy('callback'));
 
       expect(output.printSuccess).toHaveBeenCalledWith('A substep');
       expect(output.descend).toHaveBeenCalled();
@@ -309,7 +309,7 @@ describe('executionFactory', function () {
       var iteratedCallback = null;
       callbackIterator.iterateOver.andCallFake(function(arr, callback){ iteratedCallback = callback; });
 
-      executionFactory.substepExecutor({text: 'A substep', definition: {steps: []}})();
+      executionFactory.substepExecutor({text: 'A substep', definition: {steps: []}})([], jasmine.createSpy('callback'));
 
       expect(iteratedCallback).not.toBe(null);
 
@@ -321,9 +321,55 @@ describe('executionFactory', function () {
     });
 
     it('should print a failure message if the step doesn\'t have a corresponding definition', function(){
-      expect(true).toBe(false);
 
+      executionFactory.substepExecutor({text: 'A substep'})([], jasmine.createSpy('callback'));
+
+      expect(output.printFailure).toHaveBeenCalledWith('A substep - No definition associated to step');
     });
+
+    it('should print a failure message if the step has a corresponding definition which doesn\'t have child steps', function(){
+
+      executionFactory.substepExecutor({text: 'A substep', definition: {}})([], jasmine.createSpy('callback'));
+
+      expect(output.printFailure).toHaveBeenCalledWith('A substep - No definition associated to step');
+    });
+
+    it('should print the composed substep text to the output if the substep has parameters', function(){
+
+      var substep = {text: 'A parameterised substep with \'<key1>\' and \'<key2>\'', definition: {steps: []}};
+      var params = [{name: 'key1', value: 'parameter-1'}, {name: 'key2', value: 'parameter-2'}];
+
+      executionFactory.substepExecutor(substep)(params, jasmine.createSpy('callback'));
+
+      expect(output.printSuccess).toHaveBeenCalledWith('A parameterised substep with \'parameter-1\' and \'parameter-2\'');
+    });
+
+    it('should pass applicable parameters from the substep down to child steps during execution', function(){
+
+      var step = {text: 'A step with \'<key2>\' and \'<key3>\'', parameters: ['key2', 'key3'], execute: jasmine.createSpy()};
+      var substep = {text: 'A substep with \'<key1>\', \'<key2>\' and \'<key3>\'', definition: {steps: [step]}};
+
+      var substepParams = [{name: 'key1', value: 'parameter1'}, {name: 'key2', value: 'parameter2'}, {name: 'key3', value: 'parameter3'}];
+      var stepParams = [{name: 'key2', value: 'parameter2'}, {name: 'key3', value: 'parameter3'}];
+
+      var iteratedCallback = null;
+      callbackIterator.iterateOver.andCallFake(function(arr, callback){ iteratedCallback = callback; });
+
+      stepParameterLocator.locateForStep.andReturn(stepParams);
+
+      executionFactory.substepExecutor(substep)(substepParams, jasmine.createSpy());
+
+      expect(iteratedCallback).not.toBeNull();
+      iteratedCallback(step, jasmine.createSpy());
+
+      expect(stepParameterLocator.locateForStep).toHaveBeenCalledWith(step, substepParams);
+      expect(step.execute).toHaveBeenCalledWith(stepParams, jasmine.any(Function));
+    });
+  });
+
+  describe('step executor', function(){
+
+//    it('should call ')
 
       /*it('should call the execute methods of all substeps when executing a step with status of substeps-target', function () {
 
