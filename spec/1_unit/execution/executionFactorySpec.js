@@ -369,7 +369,28 @@ describe('executionFactory', function () {
 
   describe('step executor', function(){
 
-//    it('should call ')
+    it('should call the execute method of the step impl', function(){
+
+      var callback = jasmine.createSpy();
+      var step = {stepImpl: {execute: callback}};
+
+      executionFactory.stepExecutor(step)([], callback);
+
+      expect(step.stepImpl.execute).toHaveBeenCalledWith(callback);
+    });
+
+    it('should pass required parameters to the execute method of the step impl', function(){
+
+
+    });
+
+    it('should report failure if the step is missing a step impl', function(){
+      expect(true).toBe(false);
+    });
+
+    it('should report failure if the step impl throws an exception during execution', function(){
+      expect(true).toBe(false);
+    });
 
       /*it('should call the execute methods of all substeps when executing a step with status of substeps-target', function () {
 
