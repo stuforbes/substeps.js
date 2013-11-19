@@ -369,27 +369,76 @@ describe('executionFactory', function () {
 
   describe('step executor', function(){
 
+    it('should print a missing step message if there is no definition or step impl associated with the step', function(){
+
+      var step = {text: 'Missing step', status: 'missing-target'};
+
+      executionFactory.stepExecutor(step)([], jasmine.createSpy());
+
+      expect(output.printMissingDefinition).toHaveBeenCalledWith('Missing step');
+    });
+
+    it('should print a failure if the step status is missing', function(){
+
+      var step = {text: 'No status'};
+
+      executionFactory.stepExecutor(step)([], jasmine.createSpy());
+
+      expect(output.printFailure).toHaveBeenCalledWith('No status for step \'No status\'');
+    });
+
+    it('should print a failure if the step status is not recognised', function(){
+
+      var step = {text: 'Invalid status', status: 'unknown-status'};
+
+      executionFactory.stepExecutor(step)([], jasmine.createSpy());
+
+      expect(output.printFailure).toHaveBeenCalledWith('Unknown status (unknown-status) for step \'Invalid status\'');
+    });
+
     it('should call the execute method of the step impl', function(){
 
       var callback = jasmine.createSpy();
-      var step = {stepImpl: {execute: callback}};
+      var step = {text: 'A step impl', status: 'step-impl-target', stepImpl: {execute: jasmine.createSpy()}};
 
       executionFactory.stepExecutor(step)([], callback);
 
       expect(step.stepImpl.execute).toHaveBeenCalledWith(callback);
+      expect(output.printSuccess).toHaveBeenCalledWith('A step impl');
     });
 
     it('should pass required parameters to the execute method of the step impl', function(){
 
+      var callback = jasmine.createSpy();
+      var step = {text: 'A step with \'([^\']*)\' and \'([^\']*)\'', status: 'step-impl-target', parameters: ['key1', 'key2'], stepImpl: {execute: callback}};
 
+      executionFactory.stepExecutor(step)([{name: 'key1', value: 'param-1'}, {name: 'key2', value: 'param-2'}], callback);
+
+      expect(step.stepImpl.execute).toHaveBeenCalledWith('param-1', 'param-2', callback);
+      expect(output.printSuccess).toHaveBeenCalledWith('A step with \'param-1\' and \'param-2\'');
     });
 
     it('should report failure if the step is missing a step impl', function(){
-      expect(true).toBe(false);
+
+      var callback = jasmine.createSpy();
+      var step = {text: 'A step impl', status: 'step-impl-target'};
+
+      executionFactory.stepExecutor(step)([], callback);
+
+      expect(output.printFailure).toHaveBeenCalledWith('A step impl - No step implementation associated to step');
+
     });
 
     it('should report failure if the step impl throws an exception during execution', function(){
-      expect(true).toBe(false);
+
+      var callback = jasmine.createSpy();
+      var step = {text: 'A step impl', status: 'step-impl-target', stepImpl: {execute: jasmine.createSpy()}};
+      step.stepImpl.execute.andThrow('Step execution failed');
+
+      executionFactory.stepExecutor(step)([], callback);
+
+      expect(output.printFailure).toHaveBeenCalledWith('A step impl');
+
     });
 
       /*it('should call the execute methods of all substeps when executing a step with status of substeps-target', function () {
