@@ -14,7 +14,7 @@ describe('stepLoader integration', function(){
   var stepLoader;
 
   beforeEach(function(){
-    stepRegistry = require('../../../lib/step/stepRegistry')(require('../../../../lib/execution/callbackIterator'), require('underscore'));
+    stepRegistry = require('../../../lib/step/stepRegistry')(require('../../../lib/execution/callbackIterator'), require('underscore'));
     async = require('asyncjs');
     fs = require('fs');
     vm = require('vm');

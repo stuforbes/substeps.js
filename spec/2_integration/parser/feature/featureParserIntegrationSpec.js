@@ -1,12 +1,6 @@
 'use strict';
 
 describe('featureParser integration', function () {
-  it('should pass - fix these tests', function(){
-    expect(true).toBe(false);
-  });
-});
-
-xdescribe('featureParser integration', function () {
 
   var _;
   var executionFactory;
