@@ -5,7 +5,6 @@ describe('executionFactory', function () {
   var stepRegistry;
   var tagManager;
   var callbackIterator;
-  var parameterExtractor;
   var stepParameterLocator;
   var output;
   var _;
@@ -21,11 +20,10 @@ describe('executionFactory', function () {
     stepRegistry = jasmine.createSpyObj('stepRegistry', ['fireProcessEvent']);
     tagManager = jasmine.createSpyObj('tagManager', ['isApplicable']);
     callbackIterator = jasmine.createSpyObj('callbackIterator', ['iterateOver']);
-    parameterExtractor = jasmine.createSpyObj('parameterExtractor', ['extractFor']);
     stepParameterLocator = jasmine.createSpyObj('stepParameterLocator', ['locateForStep']);
     output = jasmine.createSpyObj('output', ['ascend', 'descend', 'printSuccess', 'printMissingDefinition', 'printFailure']);
 
-    executionFactory = require('../../../lib/execution/executionFactory')(stepRegistry, callbackIterator, parameterExtractor, stepParameterLocator, output, _);
+    executionFactory = require('../../../lib/execution/executionFactory')(stepRegistry, callbackIterator, stepParameterLocator, output, _);
   });
 
   beforeEach(function(){
