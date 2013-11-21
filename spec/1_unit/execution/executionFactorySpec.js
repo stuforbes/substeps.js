@@ -290,6 +290,40 @@ describe('executionFactory', function () {
 
       expect(step.execute).toHaveBeenCalled();
     });
+
+    it('should pass parameters down to parameterised substeps', function(){
+
+      var step = {text: 'A step with \'value1\' and \'value2\'', definition: {pattern: 'A step with \'([^\']*)\' and \'([^\']*)\'', parameters: ['parameter1', 'parameter2']}, execute: jasmine.createSpy()};
+
+
+      var iteratedCallback = null;
+      callbackIterator.iterateOver.andCallFake(function(arr, callback){ iteratedCallback = callback; });
+
+      executionFactory.scenarioExecutor(feature1.scenarios[2])(tagManager);
+
+      expect(iteratedCallback).not.toBe(null);
+
+      iteratedCallback(step);
+
+      expect(step.execute).toHaveBeenCalledWith([{name: 'parameter1', value: 'value1'}, {name: 'parameter2', value: 'value2'}]);
+    });
+
+    it('should pass parameters down to parameterised step implementations', function(){
+
+      var step = {text: 'A step with \'value1\' and \'value2\'', stepImpl: {pattern: 'A step with \'([^\']*)\' and \'([^\']*)\'', parameters: ['parameter1', 'parameter2']}, execute: jasmine.createSpy()};
+
+
+      var iteratedCallback = null;
+      callbackIterator.iterateOver.andCallFake(function(arr, callback){ iteratedCallback = callback; });
+
+      executionFactory.scenarioExecutor(feature1.scenarios[2])(tagManager);
+
+      expect(iteratedCallback).not.toBe(null);
+
+      iteratedCallback(step);
+
+      expect(step.execute).toHaveBeenCalledWith([{name: 'parameter1', value: 'value1'}, {name: 'parameter2', value: 'value2'}]);
+    });
   });
 
   describe('substepExecutor', function(){
