@@ -5,6 +5,7 @@ describe('executionFactory', function () {
   var stepRegistry;
   var tagManager;
   var callbackIterator;
+  var parameterExtractor;
   var stepParameterLocator;
   var output;
   var _;
@@ -20,10 +21,11 @@ describe('executionFactory', function () {
     stepRegistry = jasmine.createSpyObj('stepRegistry', ['fireProcessEvent']);
     tagManager = jasmine.createSpyObj('tagManager', ['isApplicable']);
     callbackIterator = jasmine.createSpyObj('callbackIterator', ['iterateOver']);
+    parameterExtractor = jasmine.createSpyObj('parameterExtractor', ['extractFor']);
     stepParameterLocator = jasmine.createSpyObj('stepParameterLocator', ['locateForStep']);
     output = jasmine.createSpyObj('output', ['ascend', 'descend', 'printSuccess', 'printMissingDefinition', 'printFailure']);
 
-    executionFactory = require('../../../lib/execution/executionFactory')(stepRegistry, callbackIterator, stepParameterLocator, output, _);
+    executionFactory = require('../../../lib/execution/executionFactory')(stepRegistry, callbackIterator, parameterExtractor, stepParameterLocator, output, _);
   });
 
   beforeEach(function(){
@@ -295,6 +297,7 @@ describe('executionFactory', function () {
 
       var step = {text: 'A step with \'value1\' and \'value2\'', definition: {pattern: 'A step with \'([^\']*)\' and \'([^\']*)\'', parameters: ['parameter1', 'parameter2']}, execute: jasmine.createSpy()};
 
+      parameterExtractor.extractFor.andReturn([{name: 'parameter1', value: 'value1'}, {name: 'parameter2', value: 'value2'}]);
 
       var iteratedCallback = null;
       callbackIterator.iterateOver.andCallFake(function(arr, callback){ iteratedCallback = callback; });
@@ -303,15 +306,18 @@ describe('executionFactory', function () {
 
       expect(iteratedCallback).not.toBe(null);
 
-      iteratedCallback(step);
+      var callback = jasmine.createSpy();
+      iteratedCallback(step, callback);
 
-      expect(step.execute).toHaveBeenCalledWith([{name: 'parameter1', value: 'value1'}, {name: 'parameter2', value: 'value2'}]);
+      expect(parameterExtractor.extractFor).toHaveBeenCalledWith('A step with \'value1\' and \'value2\'', 'A step with \'([^\']*)\' and \'([^\']*)\'', ['parameter1', 'parameter2']);
+      expect(step.execute).toHaveBeenCalledWith([{name: 'parameter1', value: 'value1'}, {name: 'parameter2', value: 'value2'}], callback);
     });
 
     it('should pass parameters down to parameterised step implementations', function(){
 
       var step = {text: 'A step with \'value1\' and \'value2\'', stepImpl: {pattern: 'A step with \'([^\']*)\' and \'([^\']*)\'', parameters: ['parameter1', 'parameter2']}, execute: jasmine.createSpy()};
 
+      parameterExtractor.extractFor.andReturn([{name: 'parameter1', value: 'value1'}, {name: 'parameter2', value: 'value2'}]);
 
       var iteratedCallback = null;
       callbackIterator.iterateOver.andCallFake(function(arr, callback){ iteratedCallback = callback; });
@@ -320,9 +326,29 @@ describe('executionFactory', function () {
 
       expect(iteratedCallback).not.toBe(null);
 
-      iteratedCallback(step);
+      var callback = jasmine.createSpy();
+      iteratedCallback(step, callback);
 
-      expect(step.execute).toHaveBeenCalledWith([{name: 'parameter1', value: 'value1'}, {name: 'parameter2', value: 'value2'}]);
+      expect(parameterExtractor.extractFor).toHaveBeenCalledWith('A step with \'value1\' and \'value2\'', 'A step with \'([^\']*)\' and \'([^\']*)\'', ['parameter1', 'parameter2']);
+      expect(step.execute).toHaveBeenCalledWith([{name: 'parameter1', value: 'value1'}, {name: 'parameter2', value: 'value2'}], callback);
+    });
+
+    it('should pass empty parameters down to a step if the pattern and parameter set cannot be determined', function(){
+
+      var step = {text: 'A step with \'value1\' and \'value2\'', execute: jasmine.createSpy()};
+
+
+      var iteratedCallback = null;
+      callbackIterator.iterateOver.andCallFake(function(arr, callback){ iteratedCallback = callback; });
+
+      executionFactory.scenarioExecutor(feature1.scenarios[2])(tagManager);
+
+      expect(iteratedCallback).not.toBe(null);
+
+      var callback = jasmine.createSpy();
+      iteratedCallback(step, callback);
+
+      expect(step.execute).toHaveBeenCalledWith([], callback);
     });
   });
 

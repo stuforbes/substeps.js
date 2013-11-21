@@ -4,6 +4,7 @@ describe('featureParser integration', function () {
 
   var _;
   var executionFactory;
+  var callbackIterator;
   var stepRegistry;
   var output;
 
@@ -13,9 +14,10 @@ describe('featureParser integration', function () {
     _ = require('underscore');
     _.str = require('underscore.string');
     output = require('../../../../lib/cli/consoleoutput')();
+    callbackIterator = require('../../../../lib/execution/callbackIterator')();
 
-    executionFactory = require('../../../../lib/execution/executionFactory')(output, _);
-    stepRegistry = require('../../../../lib/step/stepRegistry')(require('../../../../lib/execution/callbackIterator'), _);
+    stepRegistry = require('../../../../lib/step/stepRegistry')(callbackIterator, _);
+    executionFactory = require('../../../../lib/execution/executionFactory')(stepRegistry, callbackIterator, require('../../../../lib/execution/parameterExtractor'), require('../../../../lib/execution/stepParameterLocator'), output, _);
     featureParser = require('../../../../lib/parser/feature/featureParserFactory')(executionFactory, stepRegistry, output, _);
   });
 
